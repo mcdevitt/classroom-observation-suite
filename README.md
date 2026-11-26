@@ -37,7 +37,17 @@ This repository aims to give users:
 * **Download a single HTML file:** Download any `.html` file from the repository and open it directly in a modern web browser (Chrome, Edge, Firefox, Safari). Everything runs locally in your browser.
 
 ---
+## Why This Suite Exists & How It Fits In
 
+Classroom observation studies often run into practical bottlenecks before analysis even begins: choosing a defensible number of sessions under real-world schedule limits, matching a protocol's constructs and blind spots to the actual research question, and recording interval or session data without spreadsheet formula drift.
+
+This repository takes a modular, browser-based approach using standalone HTML tools:
+
+* **Complementary to analysis tools:** Rather than replacing established post-collection analysis and visualization tools (such as COPUS Profiles), these tools focus on planning, live/offline data capture, and methodological justification—exporting clean CSV/JSON files you can analyze in R, Python, Excel, or other workflows.
+* **Protocol-specific over one-size-fits-all:** Dedicated per-protocol HTML tools let each workflow match how researchers actually use that instrument in practice, while keeping individual files easy to open or download.
+* **Offline-first, auditable, and open:** Tools run locally in the browser with no backend server or account required, keeping classroom data on the user's device and letting anyone inspect or adapt the code under an open-source license.
+
+---
 ## Scope & Disclaimer
 
 * **Decision & Planning Support:** Recommendations and protocol notes are intended to support research planning, instructional reflection, and program evaluation—not to replace formal statistical consultation, IRB review, or local institutional policy.
