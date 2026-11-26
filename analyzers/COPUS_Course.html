@@ -1,0 +1,2228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>COPUS Course Analyzer &amp; What-If Modeler</title>
+  <style>
+    :root {
+      --bg: #f4f6f9;
+      --surface: #ffffff;
+      --surface-alt: #eef2f7;
+      --surface-subtle: #f8fafc;
+      --ink: #141920;
+      --muted: #525d6b;
+      --line: #d2dbe5;
+      --accent: #1b4d7e;
+      --accent-soft: #e6eff8;
+      --student: #166534;
+      --student-soft: #e7f5ec;
+      --instructor: #832a12;
+      --instructor-soft: #fff0ea;
+      --model: #4e2a84;
+      --model-soft: #f1ebfc;
+      --warn: #854d0e;
+      --warn-soft: #fef6e4;
+      --radius: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.48;
+    }
+
+    a {
+      color: var(--accent);
+    }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+      padding: 18px 24px;
+    }
+
+    .header-inner {
+      max-width: 1340px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.32rem;
+      font-weight: 750;
+      letter-spacing: -0.01em;
+    }
+
+    header p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .pill {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 650;
+    }
+
+    .pill.obs {
+      background: var(--student-soft);
+      color: var(--student);
+    }
+
+    .pill.model {
+      background: var(--model-soft);
+      color: var(--model);
+    }
+
+    .pill.neutral {
+      background: var(--surface-alt);
+      color: var(--muted);
+    }
+
+    .workflow-nav {
+      max-width: 1340px;
+      margin: 14px auto 0;
+      padding: 0 24px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .workflow-nav a {
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--accent);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      padding: 6px 12px;
+      border-radius: 999px;
+    }
+
+    .workflow-nav a:hover {
+      background: var(--accent-soft);
+      border-color: #b7cde4;
+    }
+
+    main {
+      max-width: 1340px;
+      margin: 16px auto 64px;
+      padding: 0 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .step-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+    }
+
+    .step-card.model-card {
+      border-color: #cbbbe9;
+      background: #fcfaff;
+    }
+
+    .step-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .step-header h2 {
+      margin: 0;
+      font-size: 1.12rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .step-desc {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    @media (max-width: 960px) {
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .sub-panel {
+      background: var(--surface-subtle);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+
+    .sub-panel.model-sub {
+      background: #f7f3fd;
+      border-color: #d8c9f2;
+    }
+
+    .sub-panel h3 {
+      margin: 0 0 6px;
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .helper {
+      margin: 0 0 10px;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    label {
+      display: block;
+      font-size: 0.81rem;
+      font-weight: 650;
+      margin: 8px 0 4px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    input[type="file"],
+    select {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      font-size: 0.86rem;
+      background: var(--surface);
+      color: var(--ink);
+      font-family: inherit;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    @media (max-width: 860px) {
+      .grid-4,
+      .grid-3 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 540px) {
+      .grid-2,
+      .grid-3,
+      .grid-4 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+      align-items: center;
+    }
+
+    button {
+      border: 1px solid var(--accent);
+      background: var(--accent);
+      color: #fff;
+      padding: 7px 12px;
+      border-radius: 7px;
+      font-size: 0.83rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:hover {
+      filter: brightness(0.96);
+    }
+
+    button.secondary {
+      background: var(--surface);
+      color: var(--accent);
+    }
+
+    button.model-btn {
+      border-color: var(--model);
+      background: var(--model);
+    }
+
+    button.model-btn.secondary {
+      background: var(--surface);
+      color: var(--model);
+    }
+
+    button.small {
+      padding: 4px 8px;
+      font-size: 0.76rem;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    @media (max-width: 860px) {
+      .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 520px) {
+      .kpi-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .kpi {
+      background: var(--surface-alt);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 11px 13px;
+    }
+
+    .kpi.modeled {
+      background: var(--model-soft);
+      border-color: #d7c7f2;
+    }
+
+    .kpi .k {
+      font-size: 0.73rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+    }
+
+    .kpi.modeled .k {
+      color: var(--model);
+    }
+
+    .kpi .v {
+      font-size: 1.24rem;
+      font-weight: 800;
+      margin-top: 3px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .kpi small {
+      display: block;
+      margin-top: 2px;
+      font-size: 0.76rem;
+      color: var(--muted);
+    }
+
+    .empty-banner {
+      background: var(--surface-subtle);
+      border: 1px dashed #b9c5d2;
+      border-radius: 8px;
+      padding: 18px 16px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.88rem;
+      margin-top: 10px;
+    }
+
+    .empty-banner strong {
+      display: block;
+      color: var(--ink);
+      margin-bottom: 4px;
+      font-size: 0.94rem;
+    }
+
+    /* Drag-and-drop session organizer */
+    .organizer-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+      max-height: 360px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .session-row-card {
+      display: grid;
+      grid-template-columns: 28px 92px 1fr 125px 150px auto;
+      gap: 8px;
+      align-items: center;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 0.8rem;
+    }
+
+    .session-row-card.dragging {
+      opacity: 0.55;
+      border-style: dashed;
+      border-color: var(--accent);
+    }
+
+    .session-row-card.drag-over {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    @media (max-width: 860px) {
+      .session-row-card {
+        grid-template-columns: 28px 1fr 1fr;
+      }
+    }
+
+    .drag-handle {
+      cursor: grab;
+      text-align: center;
+      font-weight: 700;
+      color: var(--muted);
+      user-select: none;
+      font-size: 1rem;
+    }
+
+    .drag-handle:active {
+      cursor: grabbing;
+    }
+
+    .session-row-card input,
+    .session-row-card select {
+      padding: 5px 7px;
+      font-size: 0.78rem;
+      margin: 0;
+    }
+
+    .heatmap-wrap {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      margin-top: 8px;
+      max-height: 350px;
+    }
+
+    table.hm-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.76rem;
+    }
+
+    table.hm-table th,
+    table.hm-table td {
+      border: 1px solid #e2e8f0;
+      padding: 5px 7px;
+      text-align: center;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    table.hm-table th {
+      background: var(--surface-alt);
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    table.hm-table th.row-head,
+    table.hm-table td.row-head {
+      text-align: left;
+      position: sticky;
+      left: 0;
+      background: var(--surface);
+      font-weight: 650;
+      z-index: 1;
+    }
+
+    table.hm-table th.row-head {
+      background: var(--surface-alt);
+      z-index: 3;
+    }
+
+    .chip-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .chip {
+      font-size: 0.76rem;
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--ink);
+      cursor: pointer;
+      user-select: none;
+      font-weight: 600;
+    }
+
+    .chip.sel-s {
+      background: var(--student);
+      border-color: var(--student);
+      color: #fff;
+    }
+
+    .chip.sel-i {
+      background: var(--instructor);
+      border-color: var(--instructor);
+      color: #fff;
+    }
+
+    .arch-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .arch-item {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 7px 10px;
+      font-size: 0.81rem;
+    }
+
+    .color-dot {
+      display: inline-block;
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      margin-right: 6px;
+      vertical-align: middle;
+      border: 1px solid rgba(0, 0, 0, 0.2);
+    }
+
+    .tier-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .tier-btn.active-tier {
+      background: var(--model);
+      border-color: var(--model);
+      color: #fff;
+    }
+
+    .syllabus-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .slot-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      background: var(--surface);
+      font-size: 0.78rem;
+    }
+
+    .slot-card.is-obs {
+      border-left: 4px solid var(--student);
+    }
+
+    .slot-card.is-hyp {
+      border-left: 4px solid var(--model);
+      background: #faf7ff;
+    }
+
+    .slot-card.is-empty {
+      border-style: dashed;
+      background: var(--surface-subtle);
+      color: var(--muted);
+    }
+
+    .slot-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 700;
+      margin-bottom: 4px;
+      gap: 4px;
+    }
+
+    .slot-card select,
+    .slot-card input[type="number"] {
+      padding: 4px 6px;
+      font-size: 0.76rem;
+      margin-top: 3px;
+    }
+
+    .lit-note {
+      background: var(--surface-alt);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.82rem;
+      margin-top: 8px;
+    }
+
+    .warn-box {
+      background: var(--warn-soft);
+      border: 1px solid #ebd094;
+      color: var(--warn);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.81rem;
+      margin-top: 12px;
+    }
+
+    .ref-list {
+      margin: 8px 0 0;
+      padding-left: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 0.86rem;
+    }
+
+    .ref-list li {
+      padding: 8px 12px;
+      background: var(--surface-subtle);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .doi-tag {
+      font-size: 0.78rem;
+      color: var(--muted);
+      display: block;
+      margin-top: 3px;
+    }
+
+    .status {
+      font-size: 0.82rem;
+      color: var(--student);
+      margin-top: 8px;
+      min-height: 1.2em;
+      font-weight: 600;
+    }
+
+    .status.err {
+      color: var(--instructor);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div>
+        <h1>COPUS Course Analyzer &amp; What-If Modeler</h1>
+        <p>Offline-first course observation workflow: organize sessions &amp; dates, inspect observed variability &amp; heatmaps, customize classifications, and model discrete syllabus scenarios</p>
+      </div>
+      <div class="badge-row">
+        <span class="pill">100% Local · No Autoload</span>
+        <span class="pill obs">Empirical Observed</span>
+        <span class="pill model">Hypothetical What-If</span>
+      </div>
+    </div>
+  </header>
+
+  <nav class="workflow-nav" aria-label="Workflow sections">
+    <a href="#step-1">1. Load, Scope &amp; Organize Sessions</a>
+    <a href="#step-2">2. Observed Summary, Variability &amp; Heatmaps</a>
+    <a href="#step-3">3. Session Types &amp; Collapsed Codes</a>
+    <a href="#step-4">4. What-If Course Model (Effort Tiers &amp; Syllabus)</a>
+    <a href="#references">5. References</a>
+  </nav>
+
+  <main>
+    <!-- STEP 1: Load on demand, scope course, and drag-and-drop / edit session dates & labels -->
+    <section id="step-1" class="step-card" aria-label="Step 1: Load Data, Scope Course, and Organize Sessions">
+      <div class="step-header">
+        <h2>Step 1. Load, Scope &amp; Organize Sessions <span class="pill neutral" id="coveragePill">0 / 28 sessions observed</span></h2>
+        <span class="pill">Manual Load Only</span>
+      </div>
+      <p class="step-desc">No sample data loads automatically. Load an example course to explore results before data collection, upload COPUS CSVs, set your course scope, and drag-and-drop sessions or edit dates/labels to match your course sequence.</p>
+
+      <div class="two-col">
+        <div class="sub-panel">
+          <h3>A. Load CSV Files or On-Demand Example</h3>
+          <p class="helper">Accepts <code>COPUS.html</code> CSV exports and CSVs exported from spreadsheet templates (<code>S_</code>/<code>I_</code> prefixes, <code>Prd</code>, <code>D/V</code>, <code>T/Q</code>, repeated sub-headers, and <code>1</code>/<code>x</code>/<code>✓</code>/<code>✔</code>/<code>|</code> marks).</p>
+
+          <label for="csvFileInput">Upload One or More COPUS CSV Files</label>
+          <input id="csvFileInput" type="file" accept=".csv,text/csv" multiple />
+
+          <label for="exampleSelect">Or Load Built-In Example Dataset (On Demand)</label>
+          <select id="exampleSelect">
+            <option value="">-- Select an example dataset --</option>
+            <option value="lecture_heavy">Example A: Lecture + Occasional Clicker (4 observed / 28 sessions)</option>
+            <option value="active_blended">Example B: Mixed Active &amp; Group Sessions (5 observed / 28 sessions)</option>
+            <option value="skewed_review">Example C: Lecture Course with 1 Exam/Review Session (4 observed / 28 sessions)</option>
+          </select>
+
+          <div class="btn-row">
+            <button id="loadExampleBtn" type="button">Load Example</button>
+            <button id="downloadTemplateBtn" type="button" class="secondary">Download Blank CSV</button>
+            <button id="clearDataBtn" type="button" class="secondary">Clear Data</button>
+          </div>
+          <div id="loadStatus" class="status"></div>
+        </div>
+
+        <div class="sub-panel">
+          <h3>B. Course Scope &amp; Schedule Anchor</h3>
+          <p class="helper">Define expected class sessions across the term and optional start date so session slots and coverage stay clear.</p>
+
+          <div class="grid-3">
+            <div>
+              <label for="courseCodeInput">Course Code</label>
+              <input id="courseCodeInput" type="text" placeholder="e.g., CHEM-101" />
+            </div>
+            <div>
+              <label for="expectedSessionsInput">Expected Total Sessions</label>
+              <input id="expectedSessionsInput" type="number" min="1" max="120" value="28" />
+            </div>
+            <div>
+              <label for="defaultIntervalLenInput">Default 2-Min Intervals / Sess.</label>
+              <input id="defaultIntervalLenInput" type="number" min="5" max="90" value="25" />
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div>
+              <label for="termStartDateInput">Term / Sequence Start Date (Optional)</label>
+              <input id="termStartDateInput" type="date" />
+            </div>
+            <div>
+              <label for="autoDatesBtn">Date Helpers</label>
+              <div class="btn-row" style="margin-top:0;">
+                <button id="autoDatesBtn" type="button" class="secondary small">Fill Sequential Dates from Start</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Coverage summary cards -->
+      <div class="kpi-grid">
+        <div class="kpi">
+          <div class="k">Course Coverage</div>
+          <div class="v" id="covPctVal">0.0%</div>
+          <small id="covPctSub">0 of 28 expected sessions</small>
+        </div>
+        <div class="kpi">
+          <div class="k">Observed Sessions</div>
+          <div class="v" id="obsCountVal">0</div>
+          <small id="obsCountSub">Included in observed analysis</small>
+        </div>
+        <div class="kpi">
+          <div class="k">Total 2-Min Intervals</div>
+          <div class="v" id="totalIntVal">0</div>
+          <small id="totalIntSub">Across included sessions</small>
+        </div>
+        <div class="kpi">
+          <div class="k">Unobserved Course Slots</div>
+          <div class="v" id="unobsSlotsVal">28</div>
+          <small id="unobsSlotsSub">Available for what-if modeling</small>
+        </div>
+      </div>
+
+      <!-- Drag-and-drop session organizer -->
+      <div class="sub-panel" style="margin-top:14px;">
+        <h3>C. Session Organizer (Drag-and-Drop Reorder, Dates &amp; Labels)</h3>
+        <p class="helper">Drag rows using <code>⋮⋮</code> (or use <code>↑</code>/<code>↓</code> buttons) to reorder sessions; session numbers automatically update to match their sequence position, and you can edit dates and labels directly.</p>
+        <div id="sessionOrganizerList" class="organizer-list">
+          <div class="empty-banner" style="margin-top:0;">
+            <strong>No sessions to organize yet</strong>
+            Upload CSV files or load an example dataset above to reorder sessions and assign dates or labels.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 2: Observed summary, between/within variability, and heatmaps -->
+    <section id="step-2" class="step-card" aria-label="Step 2: Observed Summary, Variability, and Heatmaps">
+      <div class="step-header">
+        <h2>Step 2. Observed Summary, Variability &amp; Heatmaps <span class="pill obs">Observed Data Only</span></h2>
+        <div class="btn-row" style="margin-top:0;">
+          <label for="denomSelect" style="margin:0;font-size:0.78rem;">Denominator:</label>
+          <select id="denomSelect" style="width:auto;padding:5px 9px;font-size:0.8rem;">
+            <option value="intervals">% of 2-Min Intervals</option>
+            <option value="marks">% of Total Code Marks</option>
+          </select>
+        </div>
+      </div>
+      <p class="step-desc">Inspect empirical metrics from observed sessions—including <strong>between-session variability</strong> across class days and <strong>within-session variability</strong> across 2-minute intervals—alongside interactive heatmaps.</p>
+
+      <div id="step2Empty" class="empty-banner">
+        <strong>No observed data loaded yet</strong>
+        Load data in Step 1 to see observed summaries, within/between variability, and heatmaps.
+      </div>
+
+      <div id="step2Content" style="display:none;">
+        <div class="kpi-grid">
+          <div class="kpi">
+            <div class="k">Obs. Student Receiving (L)</div>
+            <div class="v" id="obsRecVal">—</div>
+            <small id="obsRecSub">Across included intervals</small>
+          </div>
+          <div class="kpi">
+            <div class="k">Obs. Student Active</div>
+            <div class="v" id="obsActVal">—</div>
+            <small id="obsActSub">Active student engagement</small>
+          </div>
+          <div class="kpi">
+            <div class="k">Obs. Inst. Interactive</div>
+            <div class="v" id="obsIntVal">—</div>
+            <small id="obsIntSub">Interactive / guiding codes</small>
+          </div>
+          <div class="kpi">
+            <div class="k">Between-Session Spread</div>
+            <div class="v" id="betweenSpreadVal">—</div>
+            <small id="betweenSpreadSub">SD &amp; Min–Max in Student Active %</small>
+          </div>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi">
+            <div class="k">Within-Sess. Code Richness</div>
+            <div class="v" id="withinRichnessVal">—</div>
+            <small id="withinRichnessSub">Avg. distinct codes per 2-min window</small>
+          </div>
+          <div class="kpi">
+            <div class="k">Within-Sess. Interval Flux</div>
+            <div class="v" id="withinFluxVal">—</div>
+            <small id="withinFluxSub">Avg. code changes per step</small>
+          </div>
+          <div class="kpi">
+            <div class="k">Session Type Variability</div>
+            <div class="v" id="classVarVal">—</div>
+            <small id="classVarSub">Spread across assigned session types</small>
+          </div>
+          <div class="kpi">
+            <div class="k">Observed Session Count</div>
+            <div class="v" id="obsSessSummaryVal">—</div>
+            <small id="obsSessSummarySub">Active sessions in empirical pool</small>
+          </div>
+        </div>
+
+        <div class="two-col" style="margin-top:14px;">
+          <div class="sub-panel">
+            <div class="step-header" style="margin-bottom:4px;">
+              <h3>Session × Code Intensity Heatmap</h3>
+              <select id="matrixHeatmapMode" style="width:auto;padding:4px 8px;font-size:0.78rem;">
+                <option value="student">Student Codes (13)</option>
+                <option value="instructor">Instructor Codes (12)</option>
+                <option value="collapsed">Collapsed Groups</option>
+              </select>
+            </div>
+            <p class="helper">Compares code prevalence across sessions so you can spot between-session differences and atypical days.</p>
+            <div id="sessionHeatmapWrap" class="heatmap-wrap"></div>
+          </div>
+
+          <div class="sub-panel">
+            <div class="step-header" style="margin-bottom:4px;">
+              <h3>Interval-by-Interval Timeline Heatmap</h3>
+              <select id="timelineSessionSelect" style="width:auto;padding:4px 8px;font-size:0.78rem;"></select>
+            </div>
+            <p class="helper">Tracks each 2-minute interval across the selected session to reveal within-session pacing, transitions, and bursts.</p>
+            <div id="timelineHeatmapWrap" class="heatmap-wrap"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 3: Custom session classifications & literature-linked collapsed schemes -->
+    <section id="step-3" class="step-card" aria-label="Step 3: Session Classifications and Collapsed Code Schemes">
+      <div class="step-header">
+        <h2>Step 3. Session Classifications &amp; Collapsed Code Schemes <span class="pill" id="schemeBadge">Smith et al. (2014)</span></h2>
+        <span class="pill neutral">Literature-Linked + Custom</span>
+      </div>
+      <p class="step-desc">Define your own class-session classifications (such as <em>Standard Lecture</em>, <em>Active / Group Day</em>, <em>Exam / Review</em>, or <em>Lab</em>), assign sessions, and choose or customize collapsed code groupings grounded in published COPUS studies.</p>
+
+      <div class="two-col">
+        <div class="sub-panel">
+          <h3>A. User-Defined Session Classifications</h3>
+          <p class="helper">Add custom session classifications with color markers and apply a quick threshold or assign each session manually.</p>
+
+          <div class="grid-3">
+            <div>
+              <label for="newClassNameInput">New Classification Name</label>
+              <input id="newClassNameInput" type="text" placeholder="e.g., Problem Session" />
+            </div>
+            <div>
+              <label for="newClassColorInput">Color</label>
+              <select id="newClassColorInput">
+                <option value="#1b4d7e">Blue</option>
+                <option value="#15803d">Green</option>
+                <option value="#b45309">Amber</option>
+                <option value="#6d28d9">Purple</option>
+                <option value="#be123c">Rose</option>
+              </select>
+            </div>
+            <div style="display:flex;align-items:flex-end;">
+              <button id="addClassBtn" type="button" class="secondary small" style="width:100%;">+ Add Type</button>
+            </div>
+          </div>
+
+          <div id="classificationList" class="arch-list"></div>
+
+          <div class="grid-2" style="margin-top:10px;">
+            <div>
+              <label for="threshPctInput">Auto-Tag Active Threshold (% Student Active)</label>
+              <input id="threshPctInput" type="number" min="0" max="100" step="5" value="40" />
+            </div>
+            <div style="display:flex;align-items:flex-end;">
+              <button id="autoClassifyBtn" type="button" class="secondary small" style="width:100%;">Classify Sessions by Threshold</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="sub-panel">
+          <h3>B. Literature-Grounded Collapsed Code Schemes</h3>
+          <p class="helper">Select a published scheme—linked via anchor and DOI to the <a href="#references">References</a> section below—or customize code memberships.</p>
+
+          <label for="schemeSelect">Collapsed Scheme Preset</label>
+          <select id="schemeSelect">
+            <option value="smith2014">Smith et al. (2014) — 8 Collapsed Categories (4 Student / 4 Instructor)</option>
+            <option value="stains2018">Stains et al. (2018) — Instructional Style / Active &amp; Guiding Focus</option>
+            <option value="custom">Custom Scheme (Toggle Student &amp; Instructor Codes Below)</option>
+          </select>
+
+          <div id="schemeLinkBox" class="lit-note"></div>
+
+          <div id="customSchemeBox" style="display:none;margin-top:10px;">
+            <label>Custom Active Student Codes (<code>L</code> remains Receiving)</label>
+            <div id="customStudentChips" class="chip-wrap"></div>
+
+            <label>Custom Interactive / Guiding Instructor Codes</label>
+            <div id="customInstructorChips" class="chip-wrap"></div>
+          </div>
+
+          <div id="collapsedGroupBars" style="margin-top:12px;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 4: What-If Course Model (Effort Tiers + Discrete Session Syllabus Grid) -->
+    <section id="step-4" class="step-card model-card" aria-label="Step 4: What-If Course Model">
+      <div class="step-header">
+        <h2>Step 4. What-If Course Model <span class="pill model">Hypothetical / What-If Model</span></h2>
+        <div class="btn-row" style="margin-top:0;">
+          <button id="resetWhatIfBtn" type="button" class="model-btn secondary small">Reset What-If Model</button>
+          <button id="exportModelCsvBtn" type="button" class="model-btn small">Export Observed + What-If (.csv)</button>
+        </div>
+      </div>
+      <p class="step-desc">Choose how much setup effort you want to invest—from fast assumptions about unobserved sessions to editing individual missing class sessions (such as exam or review days from a syllabus) on a discrete course grid.</p>
+
+      <div id="step4Empty" class="empty-banner">
+        <strong>Load course data in Step 1 first</strong>
+        Once observed sessions are loaded, you can run quick what-if scenarios or populate discrete unobserved sessions on the course syllabus grid.
+      </div>
+
+      <div id="step4Content" style="display:none;">
+        <div class="sub-panel model-sub">
+          <h3>Choose Setup Effort Level</h3>
+          <div class="tier-tabs" role="group" aria-label="What-if setup effort tiers">
+            <button type="button" id="tier1Btn" class="model-btn secondary small tier-btn active-tier">Tier 1: Quick — Unobserved Similar to Observed</button>
+            <button type="button" id="tier2Btn" class="model-btn secondary small tier-btn">Tier 2: Quick — Missed Extremes / Variation Check</button>
+            <button type="button" id="tier3Btn" class="model-btn secondary small tier-btn">Tier 3: Detailed — Discrete Syllabus Session Grid</button>
+          </div>
+
+          <!-- Tier 1 -->
+          <div id="tier1Panel">
+            <p class="helper" style="margin-bottom:0;"><strong>Tier 1 (Minimal Setup):</strong> Assumes unrecorded class sessions across the remaining course schedule look similar to your observed sessions. Click below to populate remaining unobserved slots with the observed average profile.</p>
+            <div class="btn-row">
+              <button type="button" id="applyTier1Btn" class="model-btn small">Apply "Similar to Observed" to Unobserved Slots</button>
+            </div>
+          </div>
+
+          <!-- Tier 2 -->
+          <div id="tier2Panel" style="display:none;">
+            <p class="helper"><strong>Tier 2 (Moderate Setup):</strong> Tests what happens if unobserved sessions lean more <em>lecture-heavy</em> (lower active/interactive %) or more <em>active/exam-heavy</em> (higher active %).</p>
+            <div class="grid-3">
+              <div>
+                <label for="tier2ScenarioSelect">Variation / Extreme Scenario</label>
+                <select id="tier2ScenarioSelect">
+                  <option value="more_lecture">Unobserved Sessions Lean More Lecture (-15 pts Active)</option>
+                  <option value="more_active">Unobserved Sessions Lean More Active (+15 pts Active)</option>
+                  <option value="exam_days">Include 2 Dedicated Exam / Low-Interactive Days (20% Active)</option>
+                </select>
+              </div>
+              <div style="display:flex;align-items:flex-end;">
+                <button type="button" id="applyTier2Btn" class="model-btn small" style="width:100%;">Apply Scenario to Unobserved Slots</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tier 3 -->
+          <div id="tier3Panel" style="display:none;">
+            <p class="helper" style="margin-bottom:0;"><strong>Tier 3 (Syllabus-Informed Discrete Sessions):</strong> Edit individual unobserved class sessions directly in the discrete session grid below—for instance, tagging specific syllabus dates as Exam/Review days, active problem days, or standard lectures.</p>
+          </div>
+        </div>
+
+        <!-- Observed vs What-If Comparison KPIs -->
+        <div class="kpi-grid">
+          <div class="kpi">
+            <div class="k">Observed Student Active %</div>
+            <div class="v" id="wfObsActVal">—</div>
+            <small id="wfObsActSub">Empirical observed sessions</small>
+          </div>
+          <div class="kpi modeled">
+            <div class="k">What-If Course Active %</div>
+            <div class="v" id="wfModActVal">—</div>
+            <small id="wfModActDelta">Delta vs. observed: —</small>
+          </div>
+          <div class="kpi modeled">
+            <div class="k">What-If Inst. Interactive %</div>
+            <div class="v" id="wfModIntVal">—</div>
+            <small id="wfModIntDelta">Delta vs. observed: —</small>
+          </div>
+          <div class="kpi modeled">
+            <div class="k">Modeled Session Coverage</div>
+            <div class="v" id="wfCovVal">—</div>
+            <small id="wfCovSub">Observed + discrete modeled sessions</small>
+          </div>
+        </div>
+
+        <!-- Discrete session syllabus grid / heatmap -->
+        <h3 style="margin:14px 0 4px;font-size:0.95rem;">Discrete Course Session Grid (Observed + Modeled Slots)</h3>
+        <p class="helper">Each card represents one discrete class session in the term. Green = Observed session; Purple = Discrete hypothetical/modeled session (click <code>+ Model</code> or edit values directly); Dashed = Unobserved slot.</p>
+        <div id="syllabusGrid" class="syllabus-grid"></div>
+
+        <div class="warn-box">
+          <strong>Boundary Reminder:</strong> All Tier 1–3 values in this section are <strong>Hypothetical / What-If</strong> estimates used to explore course-level sensitivity or syllabus gaps. Keep them clearly separate from directly observed COPUS intervals.
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 5 / REFERENCES SECTION -->
+    <section id="references" class="step-card" aria-label="References">
+      <div class="step-header">
+        <h2>References &amp; Literature Basis</h2>
+        <span class="pill neutral">COPUS &amp; Collapsed Coding Literature</span>
+      </div>
+      <p class="step-desc">Published sources cited for COPUS administration, collapsed behavior groupings, and instructional profile interpretations.</p>
+
+      <ol class="ref-list">
+        <li id="ref-smith2014">
+          <strong>Smith, M. K., Vinson, E. L., Smith, J. A., Lewin, J. D., &amp; Stetzer, M. R. (2014).</strong> A Campus-Wide Study of STEM Courses: New Perspectives on Teaching Practices and Perceptions. <em>CBE—Life Sciences Education</em>, 13(4), 624–635.
+          <span class="doi-tag">DOI: <a href="https://doi.org/10.1187/cbe.14-06-0108" target="_blank" rel="noopener noreferrer">https://doi.org/10.1187/cbe.14-06-0108</a></span>
+        </li>
+        <li id="ref-stains2018">
+          <strong>Stains, M., Harshman, J., Barker, M. K., Chasteen, S. V., Cole, R., DeChenne-Peters, S. E., ... &amp; Young, A. M. (2018).</strong> Anatomy of STEM teaching in North American universities. <em>Science</em>, 359(6383), 1468–1470.
+          <span class="doi-tag">DOI: <a href="https://doi.org/10.1126/science.aap8892" target="_blank" rel="noopener noreferrer">https://doi.org/10.1126/science.aap8892</a></span>
+        </li>
+        <li id="ref-smith2013">
+          <strong>Smith, M. K., Jones, F. H. M., Gilbert, S. L., &amp; Wieman, C. E. (2013).</strong> The Classroom Observation Protocol for Undergraduate STEM (COPUS): A New Instrument to Measure Undergraduate STEM Classroom Practice. <em>CBE—Life Sciences Education</em>, 12(4), 618–627.
+          <span class="doi-tag">DOI: <a href="https://doi.org/10.1187/cbe.13-08-0154" target="_blank" rel="noopener noreferrer">https://doi.org/10.1187/cbe.13-08-0154</a></span>
+        </li>
+      </ol>
+    </section>
+  </main>
+
+  <script>
+    const STUDENT_CODES = ["L", "AnQ", "SQ", "WC", "SP", "Ind", "CG", "WG", "OG", "Prd", "TQ", "W", "O"];
+    const INSTRUCTOR_CODES = ["Lec", "RtW", "D/V", "Fup", "PQ", "CQ", "AnQ", "MG", "1o1", "Adm", "W", "O"];
+
+    const SCHEMES = {
+      smith2014: {
+        label: "Smith et al. (2014)",
+        refAnchor: "#ref-smith2014",
+        refText: "Smith et al. (2014)",
+        doi: "10.1187/cbe.14-06-0108",
+        summary: "Collapses student codes into Receiving (L), Talking to Class (AnQ, SQ, WC, SP), Working (Ind, CG, WG, OG, Prd, TQ), and Other (W, O); and instructor codes into Presenting (Lec, RtW, D/V), Guiding (Fup, PQ, CQ, AnQ, MG, 1o1), Admin (Adm), and Other (W, O).",
+        activeStudent: ["AnQ", "SQ", "WC", "SP", "Ind", "CG", "WG", "OG", "Prd", "TQ", "W", "O"],
+        interactiveInstructor: ["Fup", "PQ", "CQ", "AnQ", "MG", "1o1"],
+        studentGroups: [
+          { name: "Receiving (L)", codes: ["L"] },
+          { name: "Talking to Class", codes: ["AnQ", "SQ", "WC", "SP"] },
+          { name: "Working", codes: ["Ind", "CG", "WG", "OG", "Prd", "TQ"] },
+          { name: "Other Student", codes: ["W", "O"] }
+        ],
+        instructorGroups: [
+          { name: "Presenting", codes: ["Lec", "RtW", "D/V"] },
+          { name: "Guiding", codes: ["Fup", "PQ", "CQ", "AnQ", "MG", "1o1"] },
+          { name: "Admin", codes: ["Adm"] },
+          { name: "Other Instructor", codes: ["W", "O"] }
+        ]
+      },
+      stains2018: {
+        label: "Stains et al. (2018)",
+        refAnchor: "#ref-stains2018",
+        refText: "Stains et al. (2018)",
+        doi: "10.1126/science.aap8892",
+        summary: "Distinguishes didactic/receiving intervals from peer/group collaborative work, whole-class questioning, and interactive instructor facilitation/guiding behaviors.",
+        activeStudent: ["AnQ", "SQ", "WC", "SP", "Ind", "CG", "WG", "OG", "Prd"],
+        interactiveInstructor: ["MG", "1o1", "CQ", "Fup", "PQ", "AnQ"],
+        studentGroups: [
+          { name: "Receiving (L)", codes: ["L"] },
+          { name: "Group / Peer & Ind. Work", codes: ["Ind", "CG", "WG", "OG", "Prd"] },
+          { name: "Whole-Class & Questions", codes: ["AnQ", "SQ", "WC", "SP"] },
+          { name: "Test / Wait / Other", codes: ["TQ", "W", "O"] }
+        ],
+        instructorGroups: [
+          { name: "Interactive / Guiding", codes: ["MG", "1o1", "CQ", "Fup", "PQ", "AnQ"] },
+          { name: "Presenting / Demo", codes: ["Lec", "RtW", "D/V"] },
+          { name: "Admin / Logistics", codes: ["Adm"] },
+          { name: "Wait / Other", codes: ["W", "O"] }
+        ]
+      },
+      custom: {
+        label: "Custom Scheme",
+        refAnchor: "#ref-smith2013",
+        refText: "Smith et al. (2013)",
+        doi: "10.1187/cbe.13-08-0154",
+        summary: "Custom researcher-defined code groupings based on the original COPUS instrument codebook.",
+        activeStudent: ["Ind", "CG", "WG", "OG", "AnQ", "SQ", "WC"],
+        interactiveInstructor: ["MG", "1o1", "CQ", "Fup", "PQ", "AnQ"],
+        studentGroups: [],
+        instructorGroups: []
+      }
+    };
+
+    function makeInterval(sCodes, iCodes) {
+      const s = {};
+      const i = {};
+      STUDENT_CODES.forEach(c => { s[c] = sCodes.includes(c) ? 1 : 0; });
+      INSTRUCTOR_CODES.forEach(c => { i[c] = iCodes.includes(c) ? 1 : 0; });
+      return { s, i };
+    }
+
+    const EXAMPLES = {
+      lecture_heavy: {
+        courseCode: "BIO-110",
+        expectedSessions: 28,
+        defaultIntervalLen: 12,
+        sessions: [
+          { sessionNum: 1, label: "Intro & Cells", date: "", intervals: Array.from({ length: 12 }, () => makeInterval(["L"], ["Lec", "RtW"])) },
+          { sessionNum: 2, label: "Membranes + Clicker", date: "", intervals: [
+            ...Array.from({ length: 6 }, () => makeInterval(["L"], ["Lec", "RtW"])),
+            ...Array.from({ length: 2 }, () => makeInterval(["Ind", "CG", "AnQ"], ["CQ", "Fup"])),
+            ...Array.from({ length: 4 }, () => makeInterval(["L", "SQ"], ["Lec", "AnQ"]))
+          ]},
+          { sessionNum: 3, label: "Metabolism Overview", date: "", intervals: Array.from({ length: 12 }, () => makeInterval(["L"], ["Lec", "D/V"])) },
+          { sessionNum: 4, label: "Pathways & Q&A", date: "", intervals: [
+            ...Array.from({ length: 8 }, () => makeInterval(["L"], ["Lec", "RtW"])),
+            ...Array.from({ length: 2 }, () => makeInterval(["WG"], ["MG", "1o1"])),
+            ...Array.from({ length: 2 }, () => makeInterval(["L", "WC"], ["PQ", "Fup"]))
+          ]}
+        ]
+      },
+      active_blended: {
+        courseCode: "PHYS-201",
+        expectedSessions: 28,
+        defaultIntervalLen: 10,
+        sessions: [
+          { sessionNum: 1, label: "Kinematics Groups", date: "", intervals: Array.from({ length: 10 }, () => makeInterval(["WG", "CG"], ["MG", "1o1", "Fup"])) },
+          { sessionNum: 2, label: "Vectors Lecture", date: "", intervals: Array.from({ length: 10 }, () => makeInterval(["L", "AnQ"], ["Lec", "PQ", "RtW"])) },
+          { sessionNum: 3, label: "Forces Problem Set", date: "", intervals: Array.from({ length: 10 }, () => makeInterval(["Ind", "WG", "WC"], ["CQ", "MG", "Fup"])) },
+          { sessionNum: 4, label: "Energy Demo Day", date: "", intervals: Array.from({ length: 10 }, () => makeInterval(["L"], ["Lec", "D/V"])) },
+          { sessionNum: 5, label: "Momentum Workshop", date: "", intervals: Array.from({ length: 10 }, () => makeInterval(["WG", "SQ"], ["MG", "1o1", "AnQ"])) }
+        ]
+      },
+      skewed_review: {
+        courseCode: "STAT-140",
+        expectedSessions: 28,
+        defaultIntervalLen: 10,
+        sessions: [
+          { sessionNum: 1, label: "Distributions Lecture", date: "", intervals: Array.from({ length: 10 }, () => makeInterval(["L"], ["Lec", "RtW"])) },
+          { sessionNum: 2, label: "Probability Q&A", date: "", intervals: Array.from({ length: 10 }, () => makeInterval(["L", "AnQ"], ["Lec", "PQ"])) },
+          { sessionNum: 3, label: "Sampling Lecture", date: "", intervals: Array.from({ length: 10 }, () => makeInterval(["L"], ["Lec", "RtW"])) },
+          { sessionNum: 4, label: "Midterm Review Day", date: "", intervals: Array.from({ length: 10 }, () => makeInterval(["Ind", "WG", "SQ"], ["MG", "1o1", "AnQ"])) }
+        ]
+      }
+    };
+
+    // State starts completely empty — no dataset is loaded automatically on startup
+    const state = {
+      courseCode: "",
+      expectedSessions: 28,
+      defaultIntervalLen: 25,
+      termStartDate: "",
+      denom: "intervals",
+      schemeId: "smith2014",
+      customStudentActive: new Set(["Ind", "CG", "WG", "OG", "AnQ", "SQ", "WC"]),
+      customInstructorInteractive: new Set(["MG", "1o1", "CQ", "Fup", "PQ", "AnQ"]),
+      classifications: [
+        { id: "lecture", label: "Standard Lecture", color: "#1b4d7e", defaultAct: 15, defaultInt: 20 },
+        { id: "active", label: "Active / Group Day", color: "#15803d", defaultAct: 75, defaultInt: 70 },
+        { id: "exam_review", label: "Exam / Review Day", color: "#b45309", defaultAct: 30, defaultInt: 25 }
+      ],
+      sessions: [], // { id, sessionNum, label, date, classId, included, intervals }
+      hypotheticalSlots: {}, // sessionNum -> { classId, activePct, interPct, intervalsCount }
+      whatIfTier: 1,
+      selectedTimelineIdx: 0,
+      draggedIdx: null
+    };
+
+    const els = {
+      coveragePill: document.getElementById("coveragePill"),
+      csvFileInput: document.getElementById("csvFileInput"),
+      exampleSelect: document.getElementById("exampleSelect"),
+      loadExampleBtn: document.getElementById("loadExampleBtn"),
+      downloadTemplateBtn: document.getElementById("downloadTemplateBtn"),
+      clearDataBtn: document.getElementById("clearDataBtn"),
+      loadStatus: document.getElementById("loadStatus"),
+      courseCodeInput: document.getElementById("courseCodeInput"),
+      expectedSessionsInput: document.getElementById("expectedSessionsInput"),
+      defaultIntervalLenInput: document.getElementById("defaultIntervalLenInput"),
+      termStartDateInput: document.getElementById("termStartDateInput"),
+      autoDatesBtn: document.getElementById("autoDatesBtn"),
+      covPctVal: document.getElementById("covPctVal"),
+      covPctSub: document.getElementById("covPctSub"),
+      obsCountVal: document.getElementById("obsCountVal"),
+      obsCountSub: document.getElementById("obsCountSub"),
+      totalIntVal: document.getElementById("totalIntVal"),
+      totalIntSub: document.getElementById("totalIntSub"),
+      unobsSlotsVal: document.getElementById("unobsSlotsVal"),
+      unobsSlotsSub: document.getElementById("unobsSlotsSub"),
+      sessionOrganizerList: document.getElementById("sessionOrganizerList"),
+      denomSelect: document.getElementById("denomSelect"),
+      step2Empty: document.getElementById("step2Empty"),
+      step2Content: document.getElementById("step2Content"),
+      obsRecVal: document.getElementById("obsRecVal"),
+      obsRecSub: document.getElementById("obsRecSub"),
+      obsActVal: document.getElementById("obsActVal"),
+      obsActSub: document.getElementById("obsActSub"),
+      obsIntVal: document.getElementById("obsIntVal"),
+      obsIntSub: document.getElementById("obsIntSub"),
+      betweenSpreadVal: document.getElementById("betweenSpreadVal"),
+      betweenSpreadSub: document.getElementById("betweenSpreadSub"),
+      withinRichnessVal: document.getElementById("withinRichnessVal"),
+      withinRichnessSub: document.getElementById("withinRichnessSub"),
+      withinFluxVal: document.getElementById("withinFluxVal"),
+      withinFluxSub: document.getElementById("withinFluxSub"),
+      classVarVal: document.getElementById("classVarVal"),
+      classVarSub: document.getElementById("classVarSub"),
+      obsSessSummaryVal: document.getElementById("obsSessSummaryVal"),
+      obsSessSummarySub: document.getElementById("obsSessSummarySub"),
+      matrixHeatmapMode: document.getElementById("matrixHeatmapMode"),
+      sessionHeatmapWrap: document.getElementById("sessionHeatmapWrap"),
+      timelineSessionSelect: document.getElementById("timelineSessionSelect"),
+      timelineHeatmapWrap: document.getElementById("timelineHeatmapWrap"),
+      schemeBadge: document.getElementById("schemeBadge"),
+      newClassNameInput: document.getElementById("newClassNameInput"),
+      newClassColorInput: document.getElementById("newClassColorInput"),
+      addClassBtn: document.getElementById("addClassBtn"),
+      classificationList: document.getElementById("classificationList"),
+      threshPctInput: document.getElementById("threshPctInput"),
+      autoClassifyBtn: document.getElementById("autoClassifyBtn"),
+      schemeSelect: document.getElementById("schemeSelect"),
+      schemeLinkBox: document.getElementById("schemeLinkBox"),
+      customSchemeBox: document.getElementById("customSchemeBox"),
+      customStudentChips: document.getElementById("customStudentChips"),
+      customInstructorChips: document.getElementById("customInstructorChips"),
+      collapsedGroupBars: document.getElementById("collapsedGroupBars"),
+      resetWhatIfBtn: document.getElementById("resetWhatIfBtn"),
+      exportModelCsvBtn: document.getElementById("exportModelCsvBtn"),
+      step4Empty: document.getElementById("step4Empty"),
+      step4Content: document.getElementById("step4Content"),
+      tier1Btn: document.getElementById("tier1Btn"),
+      tier2Btn: document.getElementById("tier2Btn"),
+      tier3Btn: document.getElementById("tier3Btn"),
+      tier1Panel: document.getElementById("tier1Panel"),
+      tier2Panel: document.getElementById("tier2Panel"),
+      tier3Panel: document.getElementById("tier3Panel"),
+      applyTier1Btn: document.getElementById("applyTier1Btn"),
+      tier2ScenarioSelect: document.getElementById("tier2ScenarioSelect"),
+      applyTier2Btn: document.getElementById("applyTier2Btn"),
+      wfObsActVal: document.getElementById("wfObsActVal"),
+      wfObsActSub: document.getElementById("wfObsActSub"),
+      wfModActVal: document.getElementById("wfModActVal"),
+      wfModActDelta: document.getElementById("wfModActDelta"),
+      wfModIntVal: document.getElementById("wfModIntVal"),
+      wfModIntDelta: document.getElementById("wfModIntDelta"),
+      wfCovVal: document.getElementById("wfCovVal"),
+      wfCovSub: document.getElementById("wfCovSub"),
+      syllabusGrid: document.getElementById("syllabusGrid")
+    };
+
+    /**
+     * Normalize code strings across COPUS.html and spreadsheet template exports.
+     */
+    function normalizeCode(raw) {
+      const cleaned = String(raw || "").trim().replace(/^(S_|I_)/i, "");
+      if (cleaned === "Pr") return "Prd";
+      if (cleaned === "DV" || cleaned === "D/V") return "D/V";
+      if (cleaned === "T/Q" || cleaned === "TQ") return "TQ";
+      if (cleaned === "FUp" || cleaned === "Fup") return "Fup";
+      return cleaned;
+    }
+
+    function isMarkPresent(val) {
+      const v = String(val ?? "").trim().toLowerCase();
+      return v === "1" || v === "true" || v === "x" || v === "✓" || v === "✔" || v === "|";
+    }
+
+    function parseCsvRows(text) {
+      const rows = [];
+      let row = [];
+      let cur = "";
+      let inQuotes = false;
+      for (let i = 0; i < text.length; i++) {
+        const ch = text[i];
+        const next = text[i + 1];
+        if (inQuotes) {
+          if (ch === '"' && next === '"') {
+            cur += '"';
+            i++;
+          } else if (ch === '"') {
+            inQuotes = false;
+          } else {
+            cur += ch;
+          }
+        } else if (ch === '"') {
+          inQuotes = true;
+        } else if (ch === ",") {
+          row.push(cur);
+          cur = "";
+        } else if (ch === "\n" || ch === "\r") {
+          if (ch === "\r" && next === "\n") i++;
+          row.push(cur);
+          if (row.some(c => String(c).trim() !== "")) rows.push(row);
+          row = [];
+          cur = "";
+        } else {
+          cur += ch;
+        }
+      }
+      if (cur.length || row.length) {
+        row.push(cur);
+        if (row.some(c => String(c).trim() !== "")) rows.push(row);
+      }
+      return rows;
+    }
+
+    function parseCsvToSession(csvText, fallbackName, fallbackNum) {
+      try {
+        const rows = parseCsvRows(csvText);
+        if (!rows.length) return null;
+
+        let detectedCourse = "";
+        let sessionNum = fallbackNum;
+        let headerIdx = -1;
+        let colMap = {};
+
+        for (let r = 0; r < Math.min(rows.length, 25); r++) {
+          const lower = rows[r].map(c => String(c).trim().toLowerCase());
+          const cIdx = lower.indexOf("course");
+          const sIdx = lower.indexOf("session");
+          if (cIdx !== -1 && rows[r + 1] && String(rows[r + 1][cIdx] || "").trim()) {
+            detectedCourse = String(rows[r + 1][cIdx]).trim();
+          }
+          if (sIdx !== -1 && rows[r + 1] && String(rows[r + 1][sIdx] || "").trim()) {
+            sessionNum = Number(rows[r + 1][sIdx]) || fallbackNum;
+          }
+        }
+
+        for (let r = 0; r < rows.length; r++) {
+          const map = {};
+          let hits = 0;
+          rows[r].forEach((cell, cIdx) => {
+            const code = normalizeCode(cell);
+            if (STUDENT_CODES.includes(code) && !map[`S:${code}`]) {
+              map[`S:${code}`] = cIdx;
+              hits++;
+            } else if (INSTRUCTOR_CODES.includes(code) && !map[`I:${code}`]) {
+              map[`I:${code}`] = cIdx;
+              hits++;
+            }
+          });
+          if (hits >= 4) {
+            headerIdx = r;
+            colMap = map;
+            break;
+          }
+        }
+
+        if (headerIdx === -1) return null;
+
+        const intervals = [];
+        for (let r = headerIdx + 1; r < rows.length; r++) {
+          const first = String(rows[r][0] || "").trim().toLowerCase();
+          if (!first || first === "min" || first === "sum" || first === "total") continue;
+          const normFirst = normalizeCode(rows[r][0]);
+          if (STUDENT_CODES.includes(normFirst) || INSTRUCTOR_CODES.includes(normFirst)) continue;
+
+          const s = {};
+          const i = {};
+          STUDENT_CODES.forEach(c => {
+            const idx = colMap[`S:${c}`];
+            s[c] = (idx !== undefined && isMarkPresent(rows[r][idx])) ? 1 : 0;
+          });
+          INSTRUCTOR_CODES.forEach(c => {
+            const idx = colMap[`I:${c}`];
+            i[c] = (idx !== undefined && isMarkPresent(rows[r][idx])) ? 1 : 0;
+          });
+
+          if (Object.values(s).some(Boolean) || Object.values(i).some(Boolean) || /\d/.test(first)) {
+            intervals.push({ s, i });
+          }
+        }
+
+        if (!intervals.length) return null;
+        return {
+          id: `sess_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+          detectedCourse,
+          sessionNum,
+          label: fallbackName.replace(/\.csv$/i, ""),
+          date: "",
+          classId: state.classifications[0]?.id || "lecture",
+          included: true,
+          intervals
+        };
+      } catch (_) {
+        return null;
+      }
+    }
+
+    function getSchemeRules() {
+      if (state.schemeId === "custom") {
+        const actS = Array.from(state.customStudentActive);
+        const otherS = STUDENT_CODES.filter(c => c !== "L" && !state.customStudentActive.has(c));
+        const intI = Array.from(state.customInstructorInteractive);
+        const otherI = INSTRUCTOR_CODES.filter(c => !state.customInstructorInteractive.has(c));
+        return {
+          ...SCHEMES.custom,
+          activeStudent: actS,
+          interactiveInstructor: intI,
+          studentGroups: [
+            { name: "Receiving (L)", codes: ["L"] },
+            { name: "Custom Active Student", codes: actS },
+            { name: "Other Student", codes: otherS }
+          ],
+          instructorGroups: [
+            { name: "Custom Interactive / Guiding", codes: intI },
+            { name: "Other Instructor", codes: otherI }
+          ]
+        };
+      }
+      return SCHEMES[state.schemeId] || SCHEMES.smith2014;
+    }
+
+    function summarizeSession(intervals) {
+      const n = intervals.length;
+      const rules = getSchemeRules();
+      const sCount = {};
+      const iCount = {};
+      STUDENT_CODES.forEach(c => { sCount[c] = 0; });
+      INSTRUCTOR_CODES.forEach(c => { iCount[c] = 0; });
+
+      let totalSMarks = 0;
+      let totalIMarks = 0;
+      let lHits = 0;
+      let actHits = 0;
+      let intHits = 0;
+
+      intervals.forEach(iv => {
+        if (iv.s.L) lHits++;
+        if (rules.activeStudent.some(c => iv.s[c])) actHits++;
+        if (rules.interactiveInstructor.some(c => iv.i[c])) intHits++;
+        STUDENT_CODES.forEach(c => { if (iv.s[c]) { sCount[c]++; totalSMarks++; } });
+        INSTRUCTOR_CODES.forEach(c => { if (iv.i[c]) { iCount[c]++; totalIMarks++; } });
+      });
+
+      const studentPct = {};
+      const instructorPct = {};
+      STUDENT_CODES.forEach(c => {
+        if (!n) studentPct[c] = 0;
+        else if (state.denom === "marks") studentPct[c] = totalSMarks ? Math.round((sCount[c] / totalSMarks) * 100) : 0;
+        else studentPct[c] = Math.round((sCount[c] / n) * 100);
+      });
+      INSTRUCTOR_CODES.forEach(c => {
+        if (!n) instructorPct[c] = 0;
+        else if (state.denom === "marks") instructorPct[c] = totalIMarks ? Math.round((iCount[c] / totalIMarks) * 100) : 0;
+        else instructorPct[c] = Math.round((iCount[c] / n) * 100);
+      });
+
+      return {
+        n,
+        lPct: n ? Math.round((lHits / n) * 100) : 0,
+        actPct: n ? Math.round((actHits / n) * 100) : 0,
+        intPct: n ? Math.round((intHits / n) * 100) : 0,
+        studentPct,
+        instructorPct
+      };
+    }
+
+    function computeWithinVariability(sessions) {
+      if (!sessions.length) return { richness: "0.0", flux: "0.0" };
+      let richSum = 0;
+      let richCount = 0;
+      let fluxSum = 0;
+      let fluxCount = 0;
+
+      sessions.forEach(s => {
+        const ivs = s.intervals || [];
+        if (!ivs.length) return;
+        const sets = ivs.map(iv => {
+          const active = new Set();
+          STUDENT_CODES.forEach(c => { if (iv.s[c]) active.add(`S:${c}`); });
+          INSTRUCTOR_CODES.forEach(c => { if (iv.i[c]) active.add(`I:${c}`); });
+          return active;
+        });
+        richSum += sets.reduce((acc, st) => acc + st.size, 0) / sets.length;
+        richCount++;
+
+        if (sets.length > 1) {
+          let changes = 0;
+          for (let k = 1; k < sets.length; k++) {
+            const prev = sets[k - 1];
+            const curr = sets[k];
+            let step = 0;
+            prev.forEach(x => { if (!curr.has(x)) step++; });
+            curr.forEach(x => { if (!prev.has(x)) step++; });
+            changes += step;
+          }
+          fluxSum += changes / (sets.length - 1);
+          fluxCount++;
+        }
+      });
+
+      return {
+        richness: richCount ? (richSum / richCount).toFixed(2) : "0.00",
+        flux: fluxCount ? (fluxSum / fluxCount).toFixed(2) : "0.00"
+      };
+    }
+
+    function renumberSessionsFromOrder() {
+      state.sessions.forEach((s, idx) => {
+        s.sessionNum = idx + 1;
+      });
+    }
+
+    function moveSession(fromIdx, toIdx) {
+      if (fromIdx === toIdx || fromIdx < 0 || toIdx < 0 || fromIdx >= state.sessions.length || toIdx >= state.sessions.length) return;
+      const [moved] = state.sessions.splice(fromIdx, 1);
+      state.sessions.splice(toIdx, 0, moved);
+      renumberSessionsFromOrder();
+      renderAll();
+    }
+
+    function heatStyle(pct, rgb) {
+      const alpha = Math.max(0.06, Math.min(0.88, (Number(pct) || 0) / 100 * 0.88));
+      const color = alpha > 0.48 ? "#ffffff" : "#141920";
+      return `background:rgba(${rgb},${alpha.toFixed(2)});color:${color};`;
+    }
+
+    function renderAll() {
+      const expected = Math.max(1, Number(state.expectedSessions) || 28);
+      const included = state.sessions.filter(s => s.included);
+      const obsCount = included.length;
+      const totalIv = included.reduce((acc, s) => acc + s.intervals.length, 0);
+      const covPct = ((obsCount / expected) * 100).toFixed(1);
+      const unobsSlots = Math.max(0, expected - obsCount);
+
+      // Step 1 coverage KPIs
+      els.coveragePill.textContent = `${obsCount} / ${expected} sessions observed (${covPct}%)`;
+      els.covPctVal.textContent = `${covPct}%`;
+      els.covPctSub.textContent = `${obsCount} of ${expected} expected sessions`;
+      els.obsCountVal.textContent = String(obsCount);
+      els.obsCountSub.textContent = `${state.sessions.length} loaded total`;
+      els.totalIntVal.textContent = String(totalIv);
+      els.totalIntSub.textContent = `~${state.defaultIntervalLen} intervals/session default`;
+      els.unobsSlotsVal.textContent = String(unobsSlots);
+      els.unobsSlotsSub.textContent = `Unobserved slots in ${expected}-session scope`;
+
+      // Step 1 drag-and-drop session organizer
+      if (!state.sessions.length) {
+        els.sessionOrganizerList.innerHTML = `<div class="empty-banner" style="margin-top:0;"><strong>No sessions loaded yet</strong>Upload COPUS CSV files or load an example dataset above to organize sessions, dates, and order.</div>`;
+      } else {
+        els.sessionOrganizerList.innerHTML = state.sessions.map((s, idx) => {
+          const clsOpts = state.classifications.map(c => `<option value="${c.id}" ${s.classId === c.id ? "selected" : ""}>${c.label}</option>`).join("");
+          return `
+            <div class="session-row-card" draggable="true" data-drag-idx="${idx}">
+              <span class="drag-handle" title="Drag to reorder">⋮⋮</span>
+              <strong>Sess. ${s.sessionNum} (${s.intervals.length}iv)</strong>
+              <input type="text" data-label-idx="${idx}" value="${(s.label || "").replace(/"/g, "&quot;")}" placeholder="Session topic / label" />
+              <input type="date" data-date-idx="${idx}" value="${s.date || ""}" />
+              <select data-class-idx="${idx}">${clsOpts}</select>
+              <div style="display:flex;gap:4px;align-items:center;">
+                <button type="button" class="secondary small" data-up-idx="${idx}" title="Move up">↑</button>
+                <button type="button" class="secondary small" data-down-idx="${idx}" title="Move down">↓</button>
+                <input type="checkbox" data-inc-idx="${idx}" ${s.included ? "checked" : ""} title="Include in observed analysis" />
+              </div>
+            </div>
+          `;
+        }).join("");
+
+        els.sessionOrganizerList.querySelectorAll(".session-row-card").forEach(row => {
+          row.addEventListener("dragstart", () => {
+            state.draggedIdx = Number(row.dataset.dragIdx);
+            row.classList.add("dragging");
+          });
+          row.addEventListener("dragend", () => {
+            row.classList.remove("dragging");
+            els.sessionOrganizerList.querySelectorAll(".session-row-card").forEach(r => r.classList.remove("drag-over"));
+            state.draggedIdx = null;
+          });
+          row.addEventListener("dragover", e => {
+            e.preventDefault();
+            row.classList.add("drag-over");
+          });
+          row.addEventListener("dragleave", () => row.classList.remove("drag-over"));
+          row.addEventListener("drop", e => {
+            e.preventDefault();
+            const targetIdx = Number(row.dataset.dragIdx);
+            if (state.draggedIdx !== null && state.draggedIdx !== targetIdx) {
+              moveSession(state.draggedIdx, targetIdx);
+            }
+          });
+        });
+
+        els.sessionOrganizerList.querySelectorAll("input[data-label-idx]").forEach(inp => {
+          inp.addEventListener("input", () => {
+            const i = Number(inp.dataset.labelIdx);
+            if (state.sessions[i]) state.sessions[i].label = inp.value;
+          });
+        });
+        els.sessionOrganizerList.querySelectorAll("input[data-date-idx]").forEach(inp => {
+          inp.addEventListener("change", () => {
+            const i = Number(inp.dataset.dateIdx);
+            if (state.sessions[i]) state.sessions[i].date = inp.value;
+          });
+        });
+        els.sessionOrganizerList.querySelectorAll("select[data-class-idx]").forEach(sel => {
+          sel.addEventListener("change", () => {
+            const i = Number(sel.dataset.classIdx);
+            if (state.sessions[i]) { state.sessions[i].classId = sel.value; renderAll(); }
+          });
+        });
+        els.sessionOrganizerList.querySelectorAll("button[data-up-idx]").forEach(btn => {
+          btn.addEventListener("click", () => moveSession(Number(btn.dataset.upIdx), Number(btn.dataset.upIdx) - 1));
+        });
+        els.sessionOrganizerList.querySelectorAll("button[data-down-idx]").forEach(btn => {
+          btn.addEventListener("click", () => moveSession(Number(btn.dataset.downIdx), Number(btn.dataset.downIdx) + 1));
+        });
+        els.sessionOrganizerList.querySelectorAll("input[data-inc-idx]").forEach(cb => {
+          cb.addEventListener("change", () => {
+            const i = Number(cb.dataset.incIdx);
+            if (state.sessions[i]) { state.sessions[i].included = cb.checked; renderAll(); }
+          });
+        });
+      }
+
+      // Step 3 scheme citation & custom chips
+      const rules = getSchemeRules();
+      els.schemeBadge.textContent = rules.label;
+      els.schemeLinkBox.innerHTML = `
+        <strong>Literature Basis:</strong> ${rules.summary}
+        <span class="doi-tag">Source: <a href="${rules.refAnchor}">${rules.refText}</a> · DOI: <a href="https://doi.org/${rules.doi}" target="_blank" rel="noopener noreferrer">${rules.doi}</a></span>
+      `;
+      els.customSchemeBox.style.display = state.schemeId === "custom" ? "block" : "none";
+
+      if (state.schemeId === "custom") {
+        els.customStudentChips.innerHTML = STUDENT_CODES.filter(c => c !== "L").map(c => {
+          const sel = state.customStudentActive.has(c);
+          return `<span class="chip ${sel ? "sel-s" : ""}" data-sc="${c}">${c}</span>`;
+        }).join("");
+        els.customInstructorChips.innerHTML = INSTRUCTOR_CODES.map(c => {
+          const sel = state.customInstructorInteractive.has(c);
+          return `<span class="chip ${sel ? "sel-i" : ""}" data-ic="${c}">${c}</span>`;
+        }).join("");
+
+        els.customStudentChips.querySelectorAll(".chip").forEach(ch => {
+          ch.addEventListener("click", () => {
+            const c = ch.dataset.sc;
+            if (state.customStudentActive.has(c)) state.customStudentActive.delete(c);
+            else state.customStudentActive.add(c);
+            renderAll();
+          });
+        });
+        els.customInstructorChips.querySelectorAll(".chip").forEach(ch => {
+          ch.addEventListener("click", () => {
+            const c = ch.dataset.ic;
+            if (state.customInstructorInteractive.has(c)) state.customInstructorInteractive.delete(c);
+            else state.customInstructorInteractive.add(c);
+            renderAll();
+          });
+        });
+      }
+
+      els.classificationList.innerHTML = state.classifications.map(cls => {
+        const count = included.filter(s => s.classId === cls.id).length;
+        return `<div class="arch-item"><span><span class="color-dot" style="background:${cls.color};"></span><strong>${cls.label}</strong></span><span class="pill neutral">${count} observed</span></div>`;
+      }).join("");
+
+      // Step 2 observed metrics, variability, and heatmaps
+      const hasObs = included.length > 0;
+      els.step2Empty.style.display = hasObs ? "none" : "block";
+      els.step2Content.style.display = hasObs ? "block" : "none";
+
+      if (hasObs) {
+        const perSess = included.map(s => ({ sess: s, m: summarizeSession(s.intervals) }));
+        const pooledIvs = included.flatMap(s => s.intervals);
+        const pooledM = summarizeSession(pooledIvs);
+
+        els.obsRecVal.textContent = `${pooledM.lPct}%`;
+        els.obsRecSub.textContent = `Student L across ${pooledIvs.length} intervals`;
+        els.obsActVal.textContent = `${pooledM.actPct}%`;
+        els.obsActSub.textContent = `${rules.label} active student set`;
+        els.obsIntVal.textContent = `${pooledM.intPct}%`;
+        els.obsIntSub.textContent = `${rules.label} interactive/guiding set`;
+
+        const actSeries = perSess.map(x => x.m.actPct);
+        const meanAct = Math.round(actSeries.reduce((a, b) => a + b, 0) / actSeries.length);
+        const sdAct = actSeries.length > 1
+          ? Math.round(Math.sqrt(actSeries.reduce((acc, v) => acc + (v - meanAct) ** 2, 0) / actSeries.length))
+          : 0;
+        els.betweenSpreadVal.textContent = `SD ${sdAct} pts`;
+        els.betweenSpreadSub.textContent = `Range ${Math.min(...actSeries)}%–${Math.max(...actSeries)}% across sessions`;
+
+        const within = computeWithinVariability(included);
+        els.withinRichnessVal.textContent = `${within.richness} codes`;
+        els.withinRichnessSub.textContent = `Mean active codes per 2-min interval`;
+        els.withinFluxVal.textContent = `${within.flux} shifts`;
+        els.withinFluxSub.textContent = `Mean code changes between intervals`;
+
+        const classMeans = state.classifications
+          .map(cls => {
+            const matches = perSess.filter(x => x.sess.classId === cls.id);
+            if (!matches.length) return null;
+            const avg = Math.round(matches.reduce((a, b) => a + b.m.actPct, 0) / matches.length);
+            return avg;
+          })
+          .filter(v => v !== null);
+        if (classMeans.length > 1) {
+          els.classVarVal.textContent = `${Math.max(...classMeans) - Math.min(...classMeans)} pts`;
+          els.classVarSub.textContent = `Gap between highest & lowest session type`;
+        } else if (classMeans.length === 1) {
+          els.classVarVal.textContent = `${classMeans[0]}%`;
+          els.classVarSub.textContent = `Single session classification active`;
+        } else {
+          els.classVarVal.textContent = "—";
+          els.classVarSub.textContent = "Assign classifications in Step 3";
+        }
+
+        els.obsSessSummaryVal.textContent = `${obsCount} sess.`;
+        els.obsSessSummarySub.textContent = `${totalIv} recorded 2-min intervals`;
+
+        // Session x Code heatmap
+        const hmMode = els.matrixHeatmapMode.value;
+        let headers = [];
+        let rgb = "22,101,52";
+        if (hmMode === "student") {
+          headers = STUDENT_CODES;
+          rgb = "22,101,52";
+        } else if (hmMode === "instructor") {
+          headers = INSTRUCTOR_CODES;
+          rgb = "131,42,18";
+        } else {
+          headers = [...rules.studentGroups.map(g => g.name), ...rules.instructorGroups.map(g => g.name)];
+          rgb = "27,77,126";
+        }
+
+        const hmHead = `<tr><th class="row-head">Session</th>${headers.map(h => `<th>${h}</th>`).join("")}</tr>`;
+        const hmRows = perSess.map(({ sess, m }) => {
+          const tds = headers.map(h => {
+            let val = 0;
+            if (hmMode === "student") val = m.studentPct[h] ?? 0;
+            else if (hmMode === "instructor") val = m.instructorPct[h] ?? 0;
+            else {
+              const grp = [...rules.studentGroups, ...rules.instructorGroups].find(g => g.name === h);
+              const codes = grp ? grp.codes : [];
+              const hits = sess.intervals.filter(iv => codes.some(c => iv.s[c] || iv.i[c])).length;
+              val = sess.intervals.length ? Math.round((hits / sess.intervals.length) * 100) : 0;
+            }
+            return `<td style="${heatStyle(val, rgb)}">${val}%</td>`;
+          }).join("");
+          return `<tr><td class="row-head">S${sess.sessionNum}${sess.label ? ` · ${sess.label}` : ""}</td>${tds}</tr>`;
+        }).join("");
+        els.sessionHeatmapWrap.innerHTML = `<table class="hm-table"><thead>${hmHead}</thead><tbody>${hmRows}</tbody></table>`;
+
+        // Interval-by-interval timeline heatmap
+        if (state.selectedTimelineIdx >= included.length) state.selectedTimelineIdx = 0;
+        els.timelineSessionSelect.innerHTML = included.map((s, idx) => (
+          `<option value="${idx}" ${idx === state.selectedTimelineIdx ? "selected" : ""}>Session ${s.sessionNum}${s.label ? ` (${s.label})` : ""}</option>`
+        )).join("");
+
+        const targetSess = included[state.selectedTimelineIdx] || included[0];
+        const all25 = [
+          ...STUDENT_CODES.map(c => ({ label: `S:${c}`, code: c, isS: true })),
+          ...INSTRUCTOR_CODES.map(c => ({ label: `I:${c}`, code: c, isS: false }))
+        ];
+        const ivTh = targetSess.intervals.map((_, k) => `<th>Int ${k + 1}</th>`).join("");
+        const ivTr = all25.map(item => {
+          const cells = targetSess.intervals.map(iv => {
+            const val = item.isS ? (iv.s[item.code] ? 1 : 0) : (iv.i[item.code] ? 1 : 0);
+            const st = val ? heatStyle(100, item.isS ? "22,101,52" : "131,42,18") : "background:#f8fafc;color:#94a3b8;";
+            return `<td style="${st}">${val}</td>`;
+          }).join("");
+          return `<tr><td class="row-head">${item.label}</td>${cells}</tr>`;
+        }).join("");
+        els.timelineHeatmapWrap.innerHTML = `<table class="hm-table"><thead><tr><th class="row-head">Behavior</th>${ivTh}</tr></thead><tbody>${ivTr}</tbody></table>`;
+
+        // Collapsed group summary bars in Step 3
+        const sBars = rules.studentGroups.map(g => {
+          const hits = pooledIvs.filter(iv => g.codes.some(c => iv.s[c])).length;
+          const pct = pooledIvs.length ? Math.round((hits / pooledIvs.length) * 100) : 0;
+          return `<div style="margin-bottom:6px;"><div style="display:flex;justify-content:space-between;font-size:0.79rem;"><span><strong>Student:</strong> ${g.name}</span><span>${pct}%</span></div><div style="height:8px;background:#e2e8f0;border-radius:999px;overflow:hidden;"><div style="height:100%;width:${pct}%;background:var(--student);"></div></div></div>`;
+        }).join("");
+        const iBars = rules.instructorGroups.map(g => {
+          const hits = pooledIvs.filter(iv => g.codes.some(c => iv.i[c])).length;
+          const pct = pooledIvs.length ? Math.round((hits / pooledIvs.length) * 100) : 0;
+          return `<div style="margin-bottom:6px;"><div style="display:flex;justify-content:space-between;font-size:0.79rem;"><span><strong>Instructor:</strong> ${g.name}</span><span>${pct}%</span></div><div style="height:8px;background:#e2e8f0;border-radius:999px;overflow:hidden;"><div style="height:100%;width:${pct}%;background:var(--instructor);"></div></div></div>`;
+        }).join("");
+        els.collapsedGroupBars.innerHTML = sBars + iBars;
+      } else {
+        els.collapsedGroupBars.innerHTML = "";
+      }
+
+      // Step 4 discrete session syllabus grid & what-if model
+      els.step4Empty.style.display = hasObs ? "none" : "block";
+      els.step4Content.style.display = hasObs ? "block" : "none";
+
+      els.tier1Btn.classList.toggle("active-tier", state.whatIfTier === 1);
+      els.tier2Btn.classList.toggle("active-tier", state.whatIfTier === 2);
+      els.tier3Btn.classList.toggle("active-tier", state.whatIfTier === 3);
+      els.tier1Panel.style.display = state.whatIfTier === 1 ? "block" : "none";
+      els.tier2Panel.style.display = state.whatIfTier === 2 ? "block" : "none";
+      els.tier3Panel.style.display = state.whatIfTier === 3 ? "block" : "none";
+
+      if (hasObs) {
+        const obsByNum = new Map();
+        included.forEach(s => obsByNum.set(s.sessionNum, s));
+
+        const obsSummary = included.map(s => ({ sess: s, m: summarizeSession(s.intervals) }));
+        const obsTotalIv = obsSummary.reduce((acc, x) => acc + x.sess.intervals.length, 0);
+        const obsActW = obsTotalIv ? Math.round(obsSummary.reduce((acc, x) => acc + x.m.actPct * x.sess.intervals.length, 0) / obsTotalIv) : 0;
+        const obsIntW = obsTotalIv ? Math.round(obsSummary.reduce((acc, x) => acc + x.m.intPct * x.sess.intervals.length, 0) / obsTotalIv) : 0;
+
+        els.wfObsActVal.textContent = `${obsActW}%`;
+        els.wfObsActSub.textContent = `${obsCount} observed sessions (${obsTotalIv} intervals)`;
+
+        let modTotalIv = obsTotalIv;
+        let modActNum = obsActW * obsTotalIv;
+        let modIntNum = obsIntW * obsTotalIv;
+        let hypCount = 0;
+
+        Object.keys(state.hypotheticalSlots).forEach(k => {
+          const sNum = Number(k);
+          if (obsByNum.has(sNum) || sNum > expected) return;
+          const h = state.hypotheticalSlots[k];
+          const len = Math.max(1, Number(h.intervalsCount) || state.defaultIntervalLen || 25);
+          modTotalIv += len;
+          modActNum += (Number(h.activePct) || 0) * len;
+          modIntNum += (Number(h.interPct) || 0) * len;
+          hypCount++;
+        });
+
+        const modAct = modTotalIv ? Math.round(modActNum / modTotalIv) : obsActW;
+        const modInt = modTotalIv ? Math.round(modIntNum / modTotalIv) : obsIntW;
+        const dAct = modAct - obsActW;
+        const dInt = modInt - obsIntW;
+
+        els.wfModActVal.textContent = `${modAct}%`;
+        els.wfModActDelta.textContent = `Delta vs. observed: ${dAct >= 0 ? "+" : ""}${dAct} pts`;
+        els.wfModIntVal.textContent = `${modInt}%`;
+        els.wfModIntDelta.textContent = `Delta vs. observed: ${dInt >= 0 ? "+" : ""}${dInt} pts`;
+        els.wfCovVal.textContent = `${obsCount + hypCount} / ${expected} sess.`;
+        els.wfCovSub.textContent = `${obsCount} observed + ${hypCount} discrete modeled`;
+
+        const gridCards = [];
+        for (let n = 1; n <= expected; n++) {
+          if (obsByNum.has(n)) {
+            const s = obsByNum.get(n);
+            const m = summarizeSession(s.intervals);
+            const cls = state.classifications.find(c => c.id === s.classId);
+            gridCards.push(`
+              <div class="slot-card is-obs">
+                <div class="slot-top"><span>S${n} · Observed</span><span style="color:var(--student);">${m.actPct}%A</span></div>
+                <div style="font-size:0.73rem;color:var(--muted);">${s.label || "Observed Session"}${s.date ? ` · ${s.date}` : ""}</div>
+                <div style="margin-top:4px;font-size:0.73rem;">Type: <strong>${cls ? cls.label : "Observed"}</strong> · Int.: <strong>${m.intPct}%</strong></div>
+              </div>
+            `);
+          } else if (state.hypotheticalSlots[n]) {
+            const h = state.hypotheticalSlots[n];
+            const clsOpts = state.classifications.map(c => `<option value="${c.id}" ${h.classId === c.id ? "selected" : ""}>${c.label}</option>`).join("");
+            gridCards.push(`
+              <div class="slot-card is-hyp">
+                <div class="slot-top"><span>S${n} · What-If</span><button type="button" class="secondary small" data-rm-hyp="${n}" style="padding:1px 6px;font-size:0.68rem;">×</button></div>
+                <select data-h-cls="${n}">${clsOpts}</select>
+                <div class="grid-2" style="gap:4px;margin-top:4px;">
+                  <div><span style="font-size:0.68rem;">Act %</span><input type="number" min="0" max="100" step="5" data-h-act="${n}" value="${h.activePct}" /></div>
+                  <div><span style="font-size:0.68rem;">Int %</span><input type="number" min="0" max="100" step="5" data-h-int="${n}" value="${h.interPct}" /></div>
+                </div>
+              </div>
+            `);
+          } else {
+            gridCards.push(`
+              <div class="slot-card is-empty">
+                <div class="slot-top"><span>S${n} · Unobserved</span></div>
+                <div style="font-size:0.72rem;">Missing / unrecorded slot</div>
+                <button type="button" class="model-btn secondary small" data-add-hyp="${n}" style="margin-top:6px;width:100%;">+ Model Session</button>
+              </div>
+            `);
+          }
+        }
+        els.syllabusGrid.innerHTML = gridCards.join("");
+
+        els.syllabusGrid.querySelectorAll("button[data-add-hyp]").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const n = Number(btn.dataset.addHyp);
+            const defCls = state.classifications[0] || { id: "lecture", defaultAct: 15, defaultInt: 20 };
+            state.hypotheticalSlots[n] = {
+              classId: defCls.id,
+              activePct: defCls.defaultAct,
+              interPct: defCls.defaultInt,
+              intervalsCount: state.defaultIntervalLen
+            };
+            renderAll();
+          });
+        });
+        els.syllabusGrid.querySelectorAll("button[data-rm-hyp]").forEach(btn => {
+          btn.addEventListener("click", () => {
+            delete state.hypotheticalSlots[Number(btn.dataset.rmHyp)];
+            renderAll();
+          });
+        });
+        els.syllabusGrid.querySelectorAll("select[data-h-cls]").forEach(sel => {
+          sel.addEventListener("change", () => {
+            const n = Number(sel.dataset.hCls);
+            const cls = state.classifications.find(c => c.id === sel.value);
+            if (state.hypotheticalSlots[n]) {
+              state.hypotheticalSlots[n].classId = sel.value;
+              if (cls) {
+                state.hypotheticalSlots[n].activePct = cls.defaultAct;
+                state.hypotheticalSlots[n].interPct = cls.defaultInt;
+              }
+              renderAll();
+            }
+          });
+        });
+        els.syllabusGrid.querySelectorAll("input[data-h-act]").forEach(inp => {
+          inp.addEventListener("input", () => {
+            const n = Number(inp.dataset.hAct);
+            if (state.hypotheticalSlots[n]) {
+              state.hypotheticalSlots[n].activePct = Math.max(0, Math.min(100, Number(inp.value) || 0));
+              renderAll();
+            }
+          });
+        });
+        els.syllabusGrid.querySelectorAll("input[data-h-int]").forEach(inp => {
+          inp.addEventListener("input", () => {
+            const n = Number(inp.dataset.hInt);
+            if (state.hypotheticalSlots[n]) {
+              state.hypotheticalSlots[n].interPct = Math.max(0, Math.min(100, Number(inp.value) || 0));
+              renderAll();
+            }
+          });
+        });
+      }
+    }
+
+    // Event bindings
+    els.loadExampleBtn.addEventListener("click", () => {
+      const key = els.exampleSelect.value;
+      if (!key || !EXAMPLES[key]) {
+        els.loadStatus.className = "status err";
+        els.loadStatus.textContent = "Please choose an example dataset first.";
+        return;
+      }
+      const ex = EXAMPLES[key];
+      state.courseCode = ex.courseCode;
+      state.expectedSessions = ex.expectedSessions;
+      state.defaultIntervalLen = ex.defaultIntervalLen;
+      state.hypotheticalSlots = {};
+      state.sessions = ex.sessions.map((s, idx) => ({
+        id: `ex_${key}_${idx}`,
+        sessionNum: idx + 1,
+        label: s.label,
+        date: s.date,
+        classId: s.intervals.some(iv => iv.s.WG) ? "active" : "lecture",
+        included: true,
+        intervals: s.intervals
+      }));
+      els.courseCodeInput.value = state.courseCode;
+      els.expectedSessionsInput.value = state.expectedSessions;
+      els.defaultIntervalLenInput.value = state.defaultIntervalLen;
+      els.loadStatus.className = "status";
+      els.loadStatus.textContent = `Loaded ${ex.courseCode} (${state.sessions.length} observed sessions of ${state.expectedSessions}).`;
+      renderAll();
+    });
+
+    els.csvFileInput.addEventListener("change", async e => {
+      const files = Array.from(e.target.files || []);
+      if (!files.length) return;
+      let added = 0;
+      for (let i = 0; i < files.length; i++) {
+        const txt = await files[i].text();
+        const parsed = parseCsvToSession(txt, files[i].name, state.sessions.length + added + 1);
+        if (parsed) {
+          if (!state.courseCode && parsed.detectedCourse) {
+            state.courseCode = parsed.detectedCourse;
+            els.courseCodeInput.value = state.courseCode;
+          }
+          state.sessions.push(parsed);
+          added++;
+        }
+      }
+      renumberSessionsFromOrder();
+      if (added > 0) {
+        els.loadStatus.className = "status";
+        els.loadStatus.textContent = `Loaded ${added} COPUS CSV session(s) locally.`;
+        renderAll();
+      } else {
+        els.loadStatus.className = "status err";
+        els.loadStatus.textContent = "Could not detect COPUS code columns in the selected CSV file(s).";
+      }
+      e.target.value = "";
+    });
+
+    els.downloadTemplateBtn.addEventListener("click", () => {
+      const headers = [
+        "course", "session", "interval_num", "time_window",
+        ...STUDENT_CODES.map(c => `S_${c}`),
+        ...INSTRUCTOR_CODES.map(c => `I_${c}`),
+        "note"
+      ];
+      const sample = [
+        state.courseCode || "COURSE-101", 1, 1, "00:00-02:00",
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        "Sample row"
+      ];
+      const blob = new Blob([[headers.join(","), sample.join(",")].join("\n")], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "copus_course_template.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+      els.loadStatus.className = "status";
+      els.loadStatus.textContent = "Downloaded blank COPUS CSV template.";
+    });
+
+    els.clearDataBtn.addEventListener("click", () => {
+      state.sessions = [];
+      state.hypotheticalSlots = {};
+      state.selectedTimelineIdx = 0;
+      els.loadStatus.className = "status";
+      els.loadStatus.textContent = "Cleared all loaded session data.";
+      renderAll();
+    });
+
+    els.courseCodeInput.addEventListener("input", () => { state.courseCode = els.courseCodeInput.value; });
+    els.expectedSessionsInput.addEventListener("input", () => {
+      state.expectedSessions = Math.max(1, Math.min(120, Number(els.expectedSessionsInput.value) || 28));
+      renderAll();
+    });
+    els.defaultIntervalLenInput.addEventListener("input", () => {
+      state.defaultIntervalLen = Math.max(1, Math.min(120, Number(els.defaultIntervalLenInput.value) || 25));
+      renderAll();
+    });
+    els.termStartDateInput.addEventListener("change", () => { state.termStartDate = els.termStartDateInput.value; });
+
+    els.autoDatesBtn.addEventListener("click", () => {
+      if (!state.termStartDate || !state.sessions.length) return;
+      const parts = state.termStartDate.split("-").map(Number);
+      if (parts.length !== 3) return;
+      const base = new Date(parts[0], parts[1] - 1, parts[2]);
+      state.sessions.forEach((s, idx) => {
+        const d = new Date(base);
+        d.setDate(base.getDate() + idx * 2);
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, "0");
+        const dd = String(d.getDate()).padStart(2, "0");
+        s.date = `${yyyy}-${mm}-${dd}`;
+      });
+      renderAll();
+    });
+
+    els.denomSelect.addEventListener("change", () => { state.denom = els.denomSelect.value; renderAll(); });
+    els.matrixHeatmapMode.addEventListener("change", renderAll);
+    els.timelineSessionSelect.addEventListener("change", () => {
+      state.selectedTimelineIdx = Number(els.timelineSessionSelect.value) || 0;
+      renderAll();
+    });
+
+    els.addClassBtn.addEventListener("click", () => {
+      const label = (els.newClassNameInput.value || "").trim();
+      if (!label) return;
+      const id = `${label.toLowerCase().replace(/[^a-z0-9]+/g, "_")}_${Date.now().toString().slice(-4)}`;
+      state.classifications.push({
+        id,
+        label,
+        color: els.newClassColorInput.value || "#1b4d7e",
+        defaultAct: 40,
+        defaultInt: 40
+      });
+      els.newClassNameInput.value = "";
+      renderAll();
+    });
+
+    els.autoClassifyBtn.addEventListener("click", () => {
+      const thresh = Math.max(0, Math.min(100, Number(els.threshPctInput.value) || 40));
+      const activeCls = state.classifications.find(c => c.id === "active") || state.classifications[0];
+      const lecCls = state.classifications.find(c => c.id === "lecture") || state.classifications[0];
+      state.sessions.forEach(s => {
+        const m = summarizeSession(s.intervals);
+        s.classId = m.actPct >= thresh ? (activeCls ? activeCls.id : s.classId) : (lecCls ? lecCls.id : s.classId);
+      });
+      renderAll();
+    });
+
+    els.schemeSelect.addEventListener("change", () => { state.schemeId = els.schemeSelect.value; renderAll(); });
+
+    els.tier1Btn.addEventListener("click", () => { state.whatIfTier = 1; renderAll(); });
+    els.tier2Btn.addEventListener("click", () => { state.whatIfTier = 2; renderAll(); });
+    els.tier3Btn.addEventListener("click", () => { state.whatIfTier = 3; renderAll(); });
+
+    els.applyTier1Btn.addEventListener("click", () => {
+      const included = state.sessions.filter(s => s.included);
+      if (!included.length) return;
+      const pooled = summarizeSession(included.flatMap(s => s.intervals));
+      const expected = Math.max(1, Number(state.expectedSessions) || 28);
+      const obsNums = new Set(included.map(s => s.sessionNum));
+      const defCls = state.classifications[0]?.id || "lecture";
+
+      for (let n = 1; n <= expected; n++) {
+        if (!obsNums.has(n)) {
+          state.hypotheticalSlots[n] = {
+            classId: defCls,
+            activePct: pooled.actPct,
+            interPct: pooled.intPct,
+            intervalsCount: state.defaultIntervalLen
+          };
+        }
+      }
+      renderAll();
+    });
+
+    els.applyTier2Btn.addEventListener("click", () => {
+      const included = state.sessions.filter(s => s.included);
+      if (!included.length) return;
+      const pooled = summarizeSession(included.flatMap(s => s.intervals));
+      const expected = Math.max(1, Number(state.expectedSessions) || 28);
+      const obsNums = new Set(included.map(s => s.sessionNum));
+      const scen = els.tier2ScenarioSelect.value;
+
+      const unobsNums = [];
+      for (let n = 1; n <= expected; n++) {
+        if (!obsNums.has(n)) unobsNums.push(n);
+      }
+
+      unobsNums.forEach((n, idx) => {
+        if (scen === "more_lecture") {
+          state.hypotheticalSlots[n] = {
+            classId: "lecture",
+            activePct: Math.max(0, pooled.actPct - 15),
+            interPct: Math.max(0, pooled.intPct - 10),
+            intervalsCount: state.defaultIntervalLen
+          };
+        } else if (scen === "more_active") {
+          state.hypotheticalSlots[n] = {
+            classId: "active",
+            activePct: Math.min(100, pooled.actPct + 15),
+            interPct: Math.min(100, pooled.intPct + 10),
+            intervalsCount: state.defaultIntervalLen
+          };
+        } else if (scen === "exam_days") {
+          const isExam = idx === unobsNums.length - 1 || (unobsNums.length > 4 && idx === Math.floor(unobsNums.length / 2));
+          state.hypotheticalSlots[n] = {
+            classId: isExam ? "exam_review" : (state.classifications[0]?.id || "lecture"),
+            activePct: isExam ? 20 : pooled.actPct,
+            interPct: isExam ? 15 : pooled.intPct,
+            intervalsCount: state.defaultIntervalLen
+          };
+        }
+      });
+      renderAll();
+    });
+
+    els.resetWhatIfBtn.addEventListener("click", () => {
+      state.hypotheticalSlots = {};
+      renderAll();
+    });
+
+    els.exportModelCsvBtn.addEventListener("click", () => {
+      const expected = Math.max(1, Number(state.expectedSessions) || 28);
+      const obsByNum = new Map();
+      state.sessions.filter(s => s.included).forEach(s => obsByNum.set(s.sessionNum, s));
+      const lines = [["course", "session_num", "label", "date", "status", "classification", "intervals", "student_active_pct", "instructor_interactive_pct"].map(v => `"${v}"`).join(",")];
+
+      for (let n = 1; n <= expected; n++) {
+        if (obsByNum.has(n)) {
+          const s = obsByNum.get(n);
+          const m = summarizeSession(s.intervals);
+          const cls = state.classifications.find(c => c.id === s.classId)?.label || s.classId;
+          lines.push([state.courseCode || "COURSE", n, s.label || "", s.date || "", "Observed", cls, s.intervals.length, m.actPct, m.intPct].map(v => `"${v}"`).join(","));
+        } else if (state.hypotheticalSlots[n]) {
+          const h = state.hypotheticalSlots[n];
+          const cls = state.classifications.find(c => c.id === h.classId)?.label || h.classId;
+          lines.push([state.courseCode || "COURSE", n, "Modeled Session", "", "Hypothetical_WhatIf", cls, h.intervalsCount || state.defaultIntervalLen, h.activePct, h.interPct].map(v => `"${v}"`).join(","));
+        } else {
+          lines.push([state.courseCode || "COURSE", n, "", "", "Unobserved", "", 0, "", ""].map(v => `"${v}"`).join(","));
+        }
+      }
+
+      const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${(state.courseCode || "copus_course").replace(/\s+/g, "_")}_course_model.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // Render clean empty initial state (no autoloaded sample dataset)
+    renderAll();
+  </script>
+</body>
+</html>
