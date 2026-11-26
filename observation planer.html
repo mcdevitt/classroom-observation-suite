@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Classroom Observation Planner & Protocol Studio</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --surface: #ffffff;
+      --surface-alt: #f0f2f6;
+      --ink: #161b22;
+      --muted: #57606a;
+      --line: #d8dee4;
+      --accent: #1f4e78;
+      --accent-soft: #e8f0f8;
+      --good: #1a6b3c;
+      --good-soft: #e6f4ec;
+      --warn: #8a5300;
+      --warn-soft: #fff4e0;
+      --risk: #a61b29;
+      --risk-soft: #fdebed;
+      --radius: 10px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.5;
+    }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+      padding: 18px 24px;
+    }
+
+    .header-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    header p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pill {
+      font-size: 0.78rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    main {
+      max-width: 1180px;
+      margin: 24px auto;
+      padding: 0 24px 48px;
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 920px) {
+      main { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      margin-bottom: 16px;
+    }
+
+    .card h2 {
+      margin: 0 0 6px;
+      font-size: 1.02rem;
+    }
+
+    .sub {
+      color: var(--muted);
+      font-size: 0.86rem;
+      margin: 0 0 14px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin: 12px 0 5px;
+    }
+
+    select, input[type="number"], input[type="text"], textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      font-size: 0.9rem;
+      background: var(--surface);
+      color: var(--ink);
+      font-family: inherit;
+    }
+
+    textarea {
+      min-height: 78px;
+      resize: vertical;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .rec-banner {
+      background: var(--accent-soft);
+      border: 1px solid #bfd4e8;
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      margin-bottom: 16px;
+    }
+
+    .rec-main {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+    }
+
+    .rec-number {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1.1;
+    }
+
+    .tiers {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    @media (max-width: 640px) {
+      .tiers { grid-template-columns: 1fr; }
+    }
+
+    .tier {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+
+    .tier strong { display: block; font-size: 0.82rem; color: var(--muted); }
+    .tier span { font-size: 1.1rem; font-weight: 700; }
+    .tier small { display: block; font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+
+    .protocol-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 640px) {
+      .protocol-meta { grid-template-columns: 1fr; }
+    }
+
+    .meta-box {
+      background: var(--surface-alt);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 0.86rem;
+    }
+
+    .meta-box h3 {
+      margin: 0 0 6px;
+      font-size: 0.84rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--muted);
+    }
+
+    .meta-box ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.74rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      margin-left: 6px;
+    }
+
+    .b-good { background: var(--good-soft); color: var(--good); }
+    .b-warn { background: var(--warn-soft); color: var(--warn); }
+    .b-risk { background: var(--risk-soft); color: var(--risk); }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    button {
+      border: 1px solid var(--accent);
+      background: var(--accent);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 7px;
+      font-size: 0.86rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button.secondary {
+      background: var(--surface);
+      color: var(--accent);
+    }
+
+    .status-msg {
+      font-size: 0.82rem;
+      color: var(--good);
+      margin-top: 8px;
+      min-height: 1.2em;
+    }
+
+    .term-help {
+      border-bottom: 1px dotted var(--accent);
+      cursor: help;
+    }
+
+    .custom-box {
+      background: var(--surface-alt);
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-top: 10px;
+    }
+
+    details {
+      margin-top: 10px;
+      border-top: 1px solid var(--line);
+      padding-top: 10px;
+    }
+
+    summary {
+      cursor: pointer;
+      font-size: 0.86rem;
+      font-weight: 600;
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div>
+        <h1>Classroom Observation Planner &amp; Protocol Studio</h1>
+        <p>Evaluate protocol constructs, plan how often to observe, and hand off a ready-to-run config to your data collection app</p>
+      </div>
+      <div class="pill-row">
+        <span class="pill">Planner -&gt; Data Collection Handoff</span>
+        <span class="pill">10 Protocol Templates + Custom</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section aria-label="Observation planning inputs">
+      <div class="card">
+        <h2>1. Protocol &amp; Construct Check</h2>
+        <p class="sub">Pick a protocol to inspect what it captures—and what it misses.</p>
+
+        <label for="protocolSelect">Observation Protocol</label>
+        <select id="protocolSelect"></select>
+
+        <div id="customProtocolFields" class="custom-box" style="display:none;">
+          <label for="customName" style="margin-top:0;">Custom Protocol Name</label>
+          <input id="customName" type="text" value="Department Active Learning Check" />
+
+          <label for="customWindowType">Observation Structure</label>
+          <select id="customWindowType">
+            <option value="fixed_interval_presence">Fixed time intervals (presence/absence)</option>
+            <option value="cycle_rating">Observation cycle + scoring window</option>
+            <option value="holistic_session_or_lesson">Holistic session / lesson rating</option>
+          </select>
+
+          <label for="customWindowSec">Interval / Cycle Length (seconds, if applicable)</label>
+          <input id="customWindowSec" type="number" min="5" max="7200" step="5" value="120" />
+
+          <label for="customCodes">Codes / Rubric Items (comma-separated)</label>
+          <textarea id="customCodes">Group Work, Whole-Class Prompt, Instructor Explain, Student Question</textarea>
+        </div>
+
+        <label for="goalSelect">Primary Goal</label>
+        <select id="goalSelect">
+          <option value="feedback">Formative feedback / coaching</option>
+          <option value="course_estimate" selected>Trustworthy picture of the course (parameter estimate)</option>
+          <option value="comparison">Comparing sections, instructors, or benchmarks</option>
+          <option value="evaluation">High-stakes evaluation / program accountability</option>
+        </select>
+      </div>
+
+      <div class="card">
+        <h2>2. Course &amp; Practical Constraints</h2>
+        <p class="sub">Adjust for your course schedule and real-world access.</p>
+
+        <div class="grid-2">
+          <div>
+            <label for="sessionsInput">Total Class Sessions</label>
+            <input id="sessionsInput" type="number" min="2" max="120" value="30" />
+          </div>
+          <div>
+            <label for="lengthInput">Session Length (min)</label>
+            <input id="lengthInput" type="number" min="15" max="240" step="5" value="75" />
+          </div>
+        </div>
+
+        <label for="variabilitySelect">Expected Session-to-Session Variation</label>
+        <select id="variabilitySelect">
+          <option value="low">Low (consistent routine across most classes)</option>
+          <option value="moderate" selected>Moderate (typical shifts across topics/activities)</option>
+          <option value="high">High (big swings by day, unit, or exam/push weeks)</option>
+        </select>
+
+        <label for="accessLimitInput">Max Sessions You Can Practically Observe (0 = no cap)</label>
+        <input id="accessLimitInput" type="number" min="0" max="120" value="0" />
+
+        <details>
+          <summary>Optional: Prevalence &amp; Observer Error Assumptions</summary>
+          <label for="prevalenceSelect">Expected Behavior Rate (<span class="term-help" title="How often the target behavior happens across the course. 50% gives the widest uncertainty for a given sample size.">prevalence</span>)</label>
+          <select id="prevalenceSelect">
+            <option value="0.5" selected>Unknown / ~50% (most conservative)</option>
+            <option value="0.2">Uncommon (~20%)</option>
+            <option value="0.8">Frequent (~80%)</option>
+          </select>
+
+          <label for="errorSelect">Coding Slippage / Fatigue Risk</label>
+          <select id="errorSelect">
+            <option value="low">Low (calibrated raters, clear codes)</option>
+            <option value="moderate" selected>Moderate (occasional code mix-ups or late-class fatigue)</option>
+            <option value="high">High (many codes, fast shifts, or long sessions)</option>
+          </select>
+        </details>
+      </div>
+    </section>
+
+    <section aria-label="Recommendation and protocol fit">
+      <div class="rec-banner">
+        <div class="rec-main">
+          <div>
+            <div style="font-size:0.8rem; font-weight:700; text-transform:uppercase; color:var(--accent);">Recommended Observation Target</div>
+            <div class="rec-number" id="recHeadline">8 sessions</div>
+          </div>
+          <div id="recBadge" class="badge b-good">Balanced precision</div>
+        </div>
+        <p id="recSummary" style="margin:10px 0 0; font-size:0.94rem;"></p>
+
+        <div class="tiers">
+          <div class="tier">
+            <strong>LEAN FLOOR</strong>
+            <span id="tierLean">4 sessions</span>
+            <small id="tierLeanNote">Quick snapshot; wider margin of error</small>
+          </div>
+          <div class="tier">
+            <strong>RECOMMENDED</strong>
+            <span id="tierRec">8 sessions</span>
+            <small id="tierRecNote">Practical balance of effort &amp; accuracy</small>
+          </div>
+          <div class="tier">
+            <strong>HIGH CONFIDENCE</strong>
+            <span id="tierHigh">14 sessions</span>
+            <small id="tierHighNote">Tighter range for comparisons &amp; claims</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 id="protoTitle">Protocol Construct Evaluation</h2>
+        <p class="sub" id="protoSubtitle"></p>
+
+        <div class="protocol-meta">
+          <div class="meta-box">
+            <h3>What It Captures Well</h3>
+            <ul id="protoCaptures"></ul>
+          </div>
+          <div class="meta-box">
+            <h3>Construct Blind Spots &amp; Limits</h3>
+            <ul id="protoBlinds"></ul>
+          </div>
+        </div>
+
+        <p id="protoSamplingNote" style="margin:12px 0 0; font-size:0.86rem; color:var(--muted);"></p>
+      </div>
+
+      <div class="card">
+        <h2>Defensible Rationale &amp; Data Collection Handoff</h2>
+        <p class="sub">Paste this justification into a grant, IRB, or evaluation plan—or export the JSON/CSV blueprint for the companion data collection app.</p>
+        <textarea id="rationaleBox" readonly></textarea>
+        <div class="btn-row">
+          <button id="copyBtn" type="button">Copy Rationale</button>
+          <button id="downloadJsonBtn" type="button" class="secondary">Download Collection App Config (.json)</button>
+          <button id="downloadCsvBtn" type="button" class="secondary">Download Schedule Template (.csv)</button>
+        </div>
+        <div id="statusMsg" class="status-msg"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const PROTOCOLS = [
+      {
+        id: "copus",
+        name: "COPUS (Undergraduate STEM)",
+        level: "Higher-Ed STEM",
+        windowLabel: "2-minute intervals (presence/absence)",
+        windowSec: 120,
+        scoringType: "binary_presence",
+        defaultCodes: ["S.L", "S.Ind", "S.CG", "S.WG", "S.AnQ", "S.SQ", "S.WC", "I.Lec", "I.RtW", "I.CQ", "I.Fup", "I.PQ", "I.MG", "I.1o1"],
+        captures: [
+          "Observable student and instructor behaviors in 2-minute windows",
+          "Course structure balance (didactic, interactive lecture, student-centered)",
+          "Use of active tasks, clickers, and group work over time"
+        ],
+        blinds: [
+          "Why an activity works or how students make sense of ideas",
+          "Instructor intentions, student prior knowledge, or out-of-class work",
+          "Affective outcomes like belonging, confidence, or science identity"
+        ],
+        samplingNote: "Common 2–4 session rules of thumb can leave a wide uncertainty band when session-to-session teaching varies."
+      },
+      {
+        id: "copus_la",
+        name: "Modified COPUS with Learning Assistants (LA-COPUS)",
+        level: "LA-Supported STEM",
+        windowLabel: "2-minute intervals across Student, LA, and Instructor",
+        windowSec: 120,
+        scoringType: "binary_presence",
+        defaultCodes: ["S.L", "S.CG", "S.WG", "LA.L", "LA.MG", "LA.1o1", "LA.Adm", "I.Lec", "I.RtW", "I.CQ", "I.Fup", "I.MG", "I.1o1"],
+        captures: [
+          "How Learning Assistants, instructors, and students share classroom time",
+          "Whether LAs step into small-group or 1-on-1 guidance vs. whole-class lecture",
+          "Contiguous student segments (receiving, talking, working) and facilitation"
+        ],
+        blinds: [
+          "Quality or conceptual depth of LA vs. instructor conversations",
+          "Emergent student sense-making or identity shifts",
+          "Higher observer load across 37 codes and multiple LAs"
+        ],
+        samplingNote: "Tracking 37 codes and moving LAs increases false-negative risk and observer fatigue if sessions are long."
+      },
+      {
+        id: "tdop",
+        name: "TDOP (Teaching Dimensions Observation Protocol)",
+        level: "Postsecondary",
+        windowLabel: "Timed intervals across teaching dimensions",
+        windowSec: 120,
+        scoringType: "binary_presence",
+        defaultCodes: ["Lecture", "Discussion", "Small Group", "Visual/Demo", "Questioning", "Technology"],
+        captures: [
+          "Pedagogical strategies, instructional media, and interaction types",
+          "Fine-grained shifts in how instructors structure class time",
+          "Multi-dimensional profiles beyond single active/passive labels"
+        ],
+        blinds: [
+          "Internal student reasoning or learner directionality",
+          "Long-term course outcomes without paired assessments",
+          "Brief behaviors can be over-represented in longer windows"
+        ],
+        samplingNote: "Choose window length carefully: longer windows inflate presence estimates for short-lived behaviors."
+      },
+      {
+        id: "rtop",
+        name: "RTOP (Reformed Teaching Observation Protocol)",
+        level: "K–12 & Higher-Ed Math/Science",
+        windowLabel: "Full lesson / session rubric (0–4 scale)",
+        windowSec: null,
+        scoringType: "ordinal_rubric",
+        defaultCodes: ["Lesson Design & Implementation", "Propositional & Procedural Knowledge", "Communicative Interactions", "Student/Teacher Relationships"],
+        captures: [
+          "Inquiry orientation, sense-making, and student-driven investigation",
+          "Quality of classroom discourse and collaborative reasoning",
+          "Holistic alignment of lesson design with reform goals"
+        ],
+        blinds: [
+          "Exact minute-by-minute counts of how often a behavior occurs",
+          "Out-of-class assignments or unobserved grading/feedback practices"
+        ],
+        samplingNote: "Because RTOP yields a lesson-level rubric score rather than interval tallies, multiple sessions are needed to gauge typical practice."
+      },
+      {
+        id: "3d_lop",
+        name: "3D-LOP (Three-Dimensional Learning Observation Protocol)",
+        level: "Undergraduate Science",
+        windowLabel: "2-minute intervals across 3D learning dimensions",
+        windowSec: 120,
+        scoringType: "binary_presence",
+        defaultCodes: ["Scientific Practices", "Crosscutting Concepts", "Disciplinary Core Ideas", "Student Engagement", "Instructor Prompting"],
+        captures: [
+          "Presence of scientific practices, crosscutting concepts, and core ideas",
+          "How often classroom tasks invite three-dimensional sense-making"
+        ],
+        blinds: [
+          "Affective goals, classroom climate, and student belonging",
+          "Unstated instructor intentions behind worksheet or clicker prompts"
+        ],
+        samplingNote: "Pair interval coding with a review of the actual student task or prompt so surface actions aren't mistaken for deeper reasoning."
+      },
+      {
+        id: "utop",
+        name: "UTOP (UTeach Observation Protocol)",
+        level: "Secondary & Postsecondary STEM",
+        windowLabel: "5-minute interval checks + rubric ratings",
+        windowSec: 300,
+        scoringType: "ordinal_rubric",
+        defaultCodes: ["Classroom Environment", "Lesson Structure", "Implementation", "Mathematics/Science Content"],
+        captures: [
+          "Lesson flow, student engagement, and instructional implementation",
+          "Content accuracy and student reasoning across a class period"
+        ],
+        blinds: [
+          "Fast-changing micro-behaviors inside 5-minute windows",
+          "Individual student trajectories across the semester"
+        ],
+        samplingNote: "5-minute windows reduce observer load but widen uncertainty per window and smooth over short transitions."
+      },
+      {
+        id: "plato",
+        name: "PLATO (Language Arts Teaching Observation)",
+        level: "Grades 4–9 ELA / Literacy",
+        windowLabel: "15-min observe + ~8–10 min score cycle (1–4 scale)",
+        windowSec: 900,
+        scoringType: "ordinal_rubric",
+        defaultCodes: ["Intellectual Challenge", "Classroom Discourse", "Strategy Use & Instruction", "Modeling", "Classroom Environment"],
+        captures: [
+          "Intellectual rigor, text-based reasoning, and instructional scaffolding",
+          "Explicit strategy modeling and quality of classroom dialogue"
+        ],
+        blinds: [
+          "STEM lab or quantitative modeling practices",
+          "Exact minute-level tallies of discrete actions"
+        ],
+        samplingNote: "Scored in repeated cycles across multiple non-consecutive lessons so single-day lesson plans don't skew ratings."
+      },
+      {
+        id: "class_k12",
+        name: "CLASS (Classroom Assessment Scoring System)",
+        level: "Pre-K through Secondary",
+        windowLabel: "20-min cycle + ~10-min scoring (1–7 scale)",
+        windowSec: 1200,
+        scoringType: "ordinal_rubric",
+        defaultCodes: ["Emotional Support", "Classroom Organization", "Instructional Support"],
+        captures: [
+          "Teacher-student relational climate, responsiveness, and regard for student voice",
+          "Classroom routines, behavior guidance, and feedback quality"
+        ],
+        blinds: [
+          "Specific curriculum content or disciplinary task design",
+          "Fine-grained counts of individual student behaviors"
+        ],
+        samplingNote: "Requires certified raters and multiple cycles across days to capture typical classroom interaction quality."
+      },
+      {
+        id: "danielson_fft",
+        name: "Danielson Framework for Teaching (FFT)",
+        level: "K–12 Practice & Evaluation",
+        windowLabel: "Lesson / post-observation rubric (4 levels)",
+        windowSec: null,
+        scoringType: "ordinal_rubric",
+        defaultCodes: ["Planning & Preparation", "Classroom Environment", "Instruction & Engagement", "Professional Responsibilities"],
+        captures: [
+          "Broad domains of teaching practice, learning climate, and instructional execution",
+          "Structured evidence for coaching, growth, or formal evaluation"
+        ],
+        blinds: [
+          "Quantitative interval prevalence across a full term",
+          "Unobserved daily variation when only one or two lessons are visited"
+        ],
+        samplingNote: "High-stakes evaluation warrants more visits than quick coaching check-ins, especially when judging consistency."
+      },
+      {
+        id: "custom",
+        name: "Custom / User-Defined Protocol",
+        level: "Any Context",
+        windowLabel: "User-defined interval, cycle, or session scoring",
+        windowSec: 120,
+        scoringType: "binary_presence",
+        defaultCodes: ["Group Work", "Whole-Class Prompt", "Instructor Explain", "Student Question"],
+        captures: [
+          "Your exact target behaviors, rubric items, or local program indicators"
+        ],
+        blinds: [
+          "Construct validity and coding reliability depend on how clearly you define each item"
+        ],
+        samplingNote: "Pilot your custom codes on 1–2 sessions first to spot ambiguous categories or fatigue before locking in a sample size."
+      }
+    ];
+
+    const els = {
+      protocolSelect: document.getElementById("protocolSelect"),
+      customProtocolFields: document.getElementById("customProtocolFields"),
+      customName: document.getElementById("customName"),
+      customWindowType: document.getElementById("customWindowType"),
+      customWindowSec: document.getElementById("customWindowSec"),
+      customCodes: document.getElementById("customCodes"),
+      goalSelect: document.getElementById("goalSelect"),
+      sessionsInput: document.getElementById("sessionsInput"),
+      lengthInput: document.getElementById("lengthInput"),
+      variabilitySelect: document.getElementById("variabilitySelect"),
+      accessLimitInput: document.getElementById("accessLimitInput"),
+      prevalenceSelect: document.getElementById("prevalenceSelect"),
+      errorSelect: document.getElementById("errorSelect"),
+      recHeadline: document.getElementById("recHeadline"),
+      recBadge: document.getElementById("recBadge"),
+      recSummary: document.getElementById("recSummary"),
+      tierLean: document.getElementById("tierLean"),
+      tierLeanNote: document.getElementById("tierLeanNote"),
+      tierRec: document.getElementById("tierRec"),
+      tierRecNote: document.getElementById("tierRecNote"),
+      tierHigh: document.getElementById("tierHigh"),
+      tierHighNote: document.getElementById("tierHighNote"),
+      protoTitle: document.getElementById("protoTitle"),
+      protoSubtitle: document.getElementById("protoSubtitle"),
+      protoCaptures: document.getElementById("protoCaptures"),
+      protoBlinds: document.getElementById("protoBlinds"),
+      protoSamplingNote: document.getElementById("protoSamplingNote"),
+      rationaleBox: document.getElementById("rationaleBox"),
+      copyBtn: document.getElementById("copyBtn"),
+      downloadJsonBtn: document.getElementById("downloadJsonBtn"),
+      downloadCsvBtn: document.getElementById("downloadCsvBtn"),
+      statusMsg: document.getElementById("statusMsg")
+    };
+
+    PROTOCOLS.forEach((p, idx) => {
+      const opt = document.createElement("option");
+      opt.value = p.id;
+      opt.textContent = `${p.name} — ${p.level}`;
+      if (idx === 0) opt.selected = true;
+      els.protocolSelect.appendChild(opt);
+    });
+
+    function getActiveProtocol() {
+      const base = PROTOCOLS.find(p => p.id === els.protocolSelect.value) || PROTOCOLS[0];
+      if (base.id !== "custom") return base;
+
+      const codes = els.customCodes.value
+        .split(",")
+        .map(s => s.trim())
+        .filter(Boolean);
+      const wType = els.customWindowType.value;
+      const wSec = wType === "holistic_session_or_lesson" ? null : Math.max(5, Number(els.customWindowSec.value) || 120);
+      const windowLabel = wType === "holistic_session_or_lesson"
+        ? "Full session / lesson rubric"
+        : wType === "cycle_rating"
+          ? `${Math.round(wSec / 60)}-min observation cycle + scoring`
+          : `${wSec}-second intervals (presence/absence)`;
+
+      return {
+        ...base,
+        name: els.customName.value.trim() || "Custom Protocol",
+        windowLabel,
+        windowSec: wSec,
+        scoringType: wType === "holistic_session_or_lesson" ? "ordinal_rubric" : (wType === "cycle_rating" ? "ordinal_rubric" : "binary_presence"),
+        defaultCodes: codes.length ? codes : ["Target Behavior"]
+      };
+    }
+
+    function computePlan() {
+      const proto = getActiveProtocol();
+      const isCustom = proto.id === "custom";
+      els.customProtocolFields.style.display = isCustom ? "block" : "none";
+
+      const totalSessions = Math.max(2, Math.min(120, Number(els.sessionsInput.value) || 30));
+      const sessionLen = Math.max(15, Math.min(240, Number(els.lengthInput.value) || 75));
+      const goal = els.goalSelect.value;
+      const variability = els.variabilitySelect.value;
+      const prevalence = Number(els.prevalenceSelect.value) || 0.5;
+      const errorRisk = els.errorSelect.value;
+      const cap = Math.max(0, Number(els.accessLimitInput.value) || 0);
+
+      let baseRec = 8;
+      if (goal === "feedback") baseRec = 3;
+      else if (goal === "course_estimate") baseRec = variability === "low" ? 5 : (variability === "high" ? 12 : 8);
+      else if (goal === "comparison") baseRec = variability === "low" ? 7 : (variability === "high" ? 15 : 10);
+      else if (goal === "evaluation") baseRec = variability === "low" ? 6 : (variability === "high" ? 14 : 10);
+
+      if (goal !== "feedback") {
+        if (Math.abs(prevalence - 0.5) > 0.2) baseRec = Math.max(3, baseRec - 1);
+        if (errorRisk === "high") baseRec += 2;
+      }
+
+      const lean = Math.max(1, Math.min(totalSessions, Math.round(baseRec * 0.5) || 2));
+      const high = Math.max(baseRec, Math.min(totalSessions, Math.round(baseRec * 1.6)));
+      const uncappedRec = Math.max(1, Math.min(totalSessions, baseRec));
+
+      let finalRec = uncappedRec;
+      let badgeText = "Balanced precision";
+      let badgeClass = "b-good";
+
+      if (cap > 0 && cap < uncappedRec) {
+        finalRec = Math.min(totalSessions, cap);
+        const ratio = finalRec / uncappedRec;
+        if (ratio < 0.5) {
+          badgeText = "Capped by access — wider uncertainty";
+          badgeClass = "b-risk";
+        } else {
+          badgeText = "Capped by access — note wider range";
+          badgeClass = "b-warn";
+        }
+      } else if (goal === "feedback") {
+        badgeText = "Targeted coaching focus";
+        badgeClass = "b-good";
+      } else if (variability === "high") {
+        badgeText = "High variation needs more visits";
+        badgeClass = "b-warn";
+      }
+
+      els.recHeadline.textContent = finalRec === 1 ? "1 session" : `${finalRec} sessions`;
+      els.recBadge.textContent = badgeText;
+      els.recBadge.className = `badge ${badgeClass}`;
+
+      const pctCourse = Math.round((finalRec / totalSessions) * 100);
+      const totalObsHours = ((finalRec * sessionLen) / 60).toFixed(1);
+
+      let summary = `Observing ${finalRec} of ${totalSessions} class sessions (~${pctCourse}% of the course, or ~${totalObsHours} hours) using ${proto.name} `;
+      if (goal === "feedback") {
+        summary += "gives enough targeted snapshots to spot patterns and give actionable feedback without over-observing.";
+      } else if (cap > 0 && cap < uncappedRec) {
+        summary += `fits your ${cap}-session limit, though it sits below the ${uncappedRec} sessions suggested for ${variability} day-to-day variation.`;
+      } else {
+        summary += `provides a practical balance between observer effort and a trustworthy course-level picture under ${variability} session-to-session variation.`;
+      }
+      els.recSummary.textContent = summary;
+
+      els.tierLean.textContent = `${lean} ${lean === 1 ? "session" : "sessions"}`;
+      els.tierLeanNote.textContent = "Minimum check; wider uncertainty band";
+      els.tierRec.textContent = `${finalRec} ${finalRec === 1 ? "session" : "sessions"}`;
+      els.tierRecNote.textContent = "Practical target for most plans";
+      els.tierHigh.textContent = `${high} ${high === 1 ? "session" : "sessions"}`;
+      els.tierHighNote.textContent = "Stronger precision for comparisons";
+
+      els.protoTitle.textContent = `Protocol Check: ${proto.name}`;
+      els.protoSubtitle.textContent = `${proto.level} · Structure: ${proto.windowLabel}`;
+      els.protoCaptures.innerHTML = proto.captures.map(item => `<li>${item}</li>`).join("");
+      els.protoBlinds.innerHTML = proto.blinds.map(item => `<li>${item}</li>`).join("");
+      els.protoSamplingNote.textContent = proto.samplingNote;
+
+      const rationale = [
+        `Observation Plan (${proto.name}): We plan to observe ${finalRec} of ${totalSessions} sessions (~${pctCourse}% of the course; ${sessionLen}-minute sessions) for ${goal.replace("_", " ")}.`,
+        `Sampling Justification: Session-to-session variation is expected to be ${variability}, with baseline target prevalence around ${Math.round(prevalence * 100)}% and ${errorRisk} coding/fatigue risk.`,
+        `Protocol & Scope Boundaries: ${proto.name} (${proto.windowLabel}) captures ${proto.captures[0].toLowerCase()}, while ${proto.blinds[0].toLowerCase()} requires complementary evidence beyond behavioral counts alone.`
+      ].join(" ");
+      els.rationaleBox.value = rationale;
+
+      return {
+        proto,
+        totalSessions,
+        sessionLen,
+        goal,
+        variability,
+        prevalence,
+        errorRisk,
+        finalRec,
+        lean,
+        high,
+        rationale
+      };
+    }
+
+    function buildCollectionConfig(plan) {
+      return {
+        handoff_version: "1.0.0",
+        target_app: "classroom_data_collection_app",
+        created_at: new Date().toISOString(),
+        course_plan: {
+          total_sessions: plan.totalSessions,
+          session_length_min: plan.sessionLen,
+          recommended_sessions: plan.finalRec,
+          tiers: { lean: plan.lean, recommended: plan.finalRec, high_confidence: plan.high },
+          goal: plan.goal,
+          expected_variation: plan.variability,
+          expected_prevalence: plan.prevalence,
+          coding_fatigue_risk: plan.errorRisk
+        },
+        protocol: {
+          id: plan.proto.id,
+          name: plan.proto.name,
+          level: plan.proto.level,
+          window_label: plan.proto.windowLabel,
+          window_sec: plan.proto.windowSec,
+          scoring_type: plan.proto.scoringType,
+          codes_or_items: plan.proto.defaultCodes
+        },
+        rationale_summary: plan.rationale
+      };
+    }
+
+    function downloadFile(filename, content, mimeType) {
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    [
+      els.protocolSelect, els.customName, els.customWindowType, els.customWindowSec, els.customCodes,
+      els.goalSelect, els.sessionsInput, els.lengthInput, els.variabilitySelect,
+      els.accessLimitInput, els.prevalenceSelect, els.errorSelect
+    ].forEach(el => {
+      el.addEventListener("input", computePlan);
+      el.addEventListener("change", computePlan);
+    });
+
+    els.copyBtn.addEventListener("click", () => {
+      navigator.clipboard?.writeText(els.rationaleBox.value);
+      els.statusMsg.textContent = "Rationale copied to clipboard.";
+    });
+
+    els.downloadJsonBtn.addEventListener("click", () => {
+      const plan = computePlan();
+      const cfg = buildCollectionConfig(plan);
+      downloadFile("observation_collection_config.json", JSON.stringify(cfg, null, 2), "application/json");
+      els.statusMsg.textContent = "Downloaded collection app config (.json).";
+    });
+
+    els.downloadCsvBtn.addEventListener("click", () => {
+      const plan = computePlan();
+      const step = Math.max(1, Math.floor(plan.totalSessions / plan.finalRec));
+      const targetSet = new Set();
+      for (let s = 1; s <= plan.totalSessions && targetSet.size < plan.finalRec; s += step) {
+        targetSet.add(s);
+      }
+      const rows = ["session_number,planned_observe,protocol_id,session_length_min,notes"];
+      for (let s = 1; s <= plan.totalSessions; s++) {
+        rows.push(`${s},${targetSet.has(s) ? "YES" : "NO"},${plan.proto.id},${plan.sessionLen},`);
+      }
+      downloadFile("observation_schedule_template.csv", rows.join("\n"), "text/csv");
+      els.statusMsg.textContent = "Downloaded observation schedule template (.csv).";
+    });
+
+    computePlan();
+  </script>
+</body>
+</html>
