@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>COPUS Classroom Observation Recorder</title>
+  <style>
+    :root {
+      --bg: #f5f7fa;
+      --surface: #ffffff;
+      --surface-alt: #eef2f6;
+      --ink: #161b22;
+      --muted: #57606a;
+      --line: #d4dce4;
+      --accent: #1d4e78;
+      --accent-soft: #e7f0f8;
+      --student: #166534;
+      --instructor: #7c2d12;
+      --warn: #8a5300;
+      --warn-soft: #fff4e0;
+      --radius: 10px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.45;
+    }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+      padding: 16px 24px;
+    }
+
+    .header-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    header h1 { margin: 0; font-size: 1.25rem; font-weight: 700; }
+    header p { margin: 4px 0 0; color: var(--muted); font-size: 0.9rem; }
+
+    .pill {
+      font-size: 0.78rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    main {
+      max-width: 1280px;
+      margin: 20px auto;
+      padding: 0 24px 48px;
+      display: grid;
+      grid-template-columns: 330px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 980px) { main { grid-template-columns: 1fr; } }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      margin-bottom: 16px;
+    }
+
+    .card h2 { margin: 0 0 6px; font-size: 1rem; }
+    .sub { color: var(--muted); font-size: 0.84rem; margin: 0 0 12px; }
+
+    label { display: block; font-size: 0.83rem; font-weight: 600; margin: 10px 0 4px; }
+
+    select, input[type="number"], input[type="text"], textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      font-size: 0.88rem;
+      background: var(--surface);
+      color: var(--ink);
+      font-family: inherit;
+    }
+
+    textarea { min-height: 64px; resize: vertical; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    .timer-banner {
+      background: var(--accent-soft);
+      border: 1px solid #bfd4e8;
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      margin-bottom: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .interval-badge {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--accent);
+    }
+
+    .clock {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
+      line-height: 1.1;
+    }
+
+    .btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+
+    button {
+      border: 1px solid var(--accent);
+      background: var(--accent);
+      color: #fff;
+      padding: 8px 13px;
+      border-radius: 7px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button.secondary { background: var(--surface); color: var(--accent); }
+
+    .two-col-codes { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 760px) { .two-col-codes { grid-template-columns: 1fr; } }
+
+    .col-box { border: 1px solid var(--line); border-radius: 9px; padding: 12px; background: var(--surface); }
+
+    .col-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .col-head.student h3 { color: var(--student); margin: 0; font-size: 0.94rem; }
+    .col-head.instructor h3 { color: var(--instructor); margin: 0; font-size: 0.94rem; }
+
+    .code-list { display: flex; flex-direction: column; gap: 6px; }
+
+    .code-btn {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 7px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--ink);
+      text-align: left;
+      font-size: 0.83rem;
+      font-weight: 500;
+    }
+
+    .code-btn strong { font-weight: 700; margin-right: 4px; }
+    .code-btn.active-student { background: var(--student); border-color: var(--student); color: #fff; }
+    .code-btn.active-instructor { background: var(--instructor); border-color: var(--instructor); color: #fff; }
+
+    .pill-cnt {
+      font-size: 0.73rem;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: var(--surface-alt);
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+      flex-shrink: 0;
+    }
+
+    .code-btn.active-student .pill-cnt,
+    .code-btn.active-instructor .pill-cnt { background: rgba(255, 255, 255, 0.22); color: #fff; }
+
+    .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 8px; }
+    @media (max-width: 680px) { .summary-grid { grid-template-columns: 1fr; } }
+
+    .stat-box { background: var(--surface-alt); border-radius: 8px; padding: 10px 12px; }
+    .stat-box .k { font-size: 0.76rem; font-weight: 700; text-transform: uppercase; color: var(--muted); }
+    .stat-box .v { font-size: 1.25rem; font-weight: 800; margin-top: 2px; font-variant-numeric: tabular-nums; }
+    .stat-box small { display: block; font-size: 0.76rem; color: var(--muted); margin-top: 2px; }
+
+    .note-box {
+      background: var(--warn-soft);
+      border: 1px solid #f0d59c;
+      color: var(--warn);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.82rem;
+      margin-top: 12px;
+    }
+
+    .table-wrap { max-height: 250px; overflow: auto; border: 1px solid var(--line); border-radius: 8px; margin-top: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    th, td { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: left; white-space: nowrap; }
+    th { background: var(--surface-alt); position: sticky; top: 0; }
+    .status { font-size: 0.82rem; color: var(--student); margin-top: 8px; min-height: 1.2em; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div>
+        <h1>COPUS Classroom Observation Recorder</h1>
+        <p>2-minute interval logger built around standard COPUS codes, active/passive/interactive summaries, and Excel-compatible exports</p>
+      </div>
+      <span class="pill">Standalone Offline HTML · COPUS Protocol</span>
+    </div>
+  </header>
+
+  <main>
+    <section aria-label="Session setup and notes">
+      <div class="card">
+        <h2>Session Metadata</h2>
+        <p class="sub">Logged with every 2-minute interval and exported summary.</p>
+
+        <div class="grid-2">
+          <div>
+            <label for="courseInput">Course / Section</label>
+            <input id="courseInput" type="text" value="CHEM-101 A" />
+          </div>
+          <div>
+            <label for="sessionInput">Session #</label>
+            <input id="sessionInput" type="number" min="1" max="200" value="1" />
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <label for="observerInput">Observer</label>
+            <input id="observerInput" type="text" value="Obs-1" />
+          </div>
+          <div>
+            <label for="intervalSecInput">Interval Length (sec)</label>
+            <input id="intervalSecInput" type="number" min="15" max="600" step="15" value="120" />
+          </div>
+        </div>
+
+        <label for="sessionNoteInput">Interval / Session Note (optional)</label>
+        <textarea id="sessionNoteInput" placeholder="e.g., Clicker question at 14 min; group work after break..."></textarea>
+      </div>
+
+      <div class="card">
+        <h2>Excel Workflow Note</h2>
+        <p class="sub" style="margin-bottom:0;">
+          Many COPUS teams rely on a familiar Excel workbook for session summaries. This tool keeps live entry fast and avoids formula/copy-paste drift mid-class, while exporting both a <strong>COPUS-style interval matrix CSV</strong> (easy to open or paste into Excel) and a <strong>collapsed summary CSV</strong>.
+        </p>
+        <div class="note-box">
+          <strong>Reminder:</strong> Multiple codes can be active in the same 2-minute window, so collapsed percentages reflect <em>proportion of intervals</em> where each group of behaviors appeared—not mutually exclusive minutes.
+        </div>
+      </div>
+    </section>
+
+    <section aria-label="Active interval scoring and summaries">
+      <div class="timer-banner">
+        <div>
+          <div class="interval-badge" id="intervalLabel">INTERVAL #1 · 00:00–02:00</div>
+          <div class="clock" id="clockDisplay">02:00</div>
+        </div>
+        <div class="btn-row" style="margin-top:0;">
+          <button id="startPauseBtn" type="button">Start Timer</button>
+          <button id="saveNextBtn" type="button">Save Interval &amp; Next</button>
+          <button id="clearCurrentBtn" type="button" class="secondary">Clear Current</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Score Current 2-Minute Window</h2>
+        <p class="sub">Select all Student and Instructor behaviors observed during this window, then click <strong>Save Interval &amp; Next</strong>.</p>
+
+        <div class="two-col-codes">
+          <div class="col-box">
+            <div class="col-head student">
+              <h3>Student Codes (13)</h3>
+              <span class="pill-cnt" id="studentSelectedCount">0 selected</span>
+            </div>
+            <div class="code-list" id="studentCodeList"></div>
+          </div>
+
+          <div class="col-box">
+            <div class="col-head instructor">
+              <h3>Instructor Codes (12)</h3>
+              <span class="pill-cnt" id="instructorSelectedCount">0 selected</span>
+            </div>
+            <div class="code-list" id="instructorCodeList"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Session Summary &amp; Collapsed COPUS Groups (<span id="totalIntervalsCount">0</span> intervals)</h2>
+        <p class="sub">Standard researcher roll-ups across recorded intervals (intervals with at least one code in the group).</p>
+
+        <div class="summary-grid">
+          <div class="stat-box">
+            <div class="k">Student Receiving</div>
+            <div class="v" id="pctReceiving">0%</div>
+            <small>L (listening/taking notes)</small>
+          </div>
+          <div class="stat-box">
+            <div class="k">Student Active / Talking</div>
+            <div class="v" id="pctActiveStudent">0%</div>
+            <small>Ind, CG, WG, OG, AnQ, SQ, WC, Pr, SP, TQ, W, O</small>
+          </div>
+          <div class="stat-box">
+            <div class="k">Instructor Guiding / Interactive</div>
+            <div class="v" id="pctInteractiveInst">0%</div>
+            <small>Lec, RtW, MG, 1o1, CQ, Fup, PQ, AnQ, MO, DV, Adm, W</small>
+          </div>
+        </div>
+
+        <div class="btn-row" style="margin-top:14px;">
+          <button id="exportMatrixCsvBtn" type="button">Export COPUS Matrix (.csv)</button>
+          <button id="exportSummaryCsvBtn" type="button" class="secondary">Export Summary Roll-Up (.csv)</button>
+          <button id="undoLastBtn" type="button" class="secondary">Undo Last Interval</button>
+          <button id="resetAllBtn" type="button" class="secondary">Reset Session</button>
+        </div>
+        <div id="statusMsg" class="status"></div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Int #</th>
+                <th>Time Window</th>
+                <th>Student Codes</th>
+                <th>Instructor Codes</th>
+                <th>Note</th>
+              </tr>
+            </thead>
+            <tbody id="logTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const STUDENT_CODES = [
+      { code: "L", label: "Listening / taking notes" },
+      { code: "Ind", label: "Individual thinking / problem solving" },
+      { code: "CG", label: "Discuss clicker question in groups" },
+      { code: "WG", label: "Working in groups on worksheet / activity" },
+      { code: "OG", label: "Other group work" },
+      { code: "AnQ", label: "Answer question asked by instructor" },
+      { code: "SQ", label: "Ask a question" },
+      { code: "WC", label: "Engaged in whole-class discussion" },
+      { code: "Pr", label: "Making a presentation" },
+      { code: "SP", label: "Test / quiz taking" },
+      { code: "TQ", label: "Waiting (instructor late / technical issue)" },
+      { code: "W", label: "Waiting for instructor to move on" },
+      { code: "O", label: "Other student behavior" }
+    ];
+
+    const INSTRUCTOR_CODES = [
+      { code: "Lec", label: "Lecturing (presenting content)" },
+      { code: "RtW", label: "Real-time writing on board / slides" },
+      { code: "MG", label: "Moving through class guiding group work" },
+      { code: "1o1", label: "One-on-one extended discussion with student" },
+      { code: "CQ", label: "Asking a clicker question (not whole-class)" },
+      { code: "Fup", label: "Follow-up / feedback on clicker or question" },
+      { code: "PQ", label: "Pose non-clicker question to students" },
+      { code: "AnQ", label: "Answering student questions with whole class" },
+      { code: "MO", label: "Modeling / demonstrating problem or procedure" },
+      { code: "DV", label: "Showing or running a demo / video / simulation" },
+      { code: "Adm", label: "Administration / logistics" },
+      { code: "W", label: "Waiting while students work / think" }
+    ];
+
+    const ACTIVE_STUDENT_SET = new Set(["Ind", "CG", "WG", "OG", "AnQ", "SQ", "WC", "Pr", "SP", "TQ", "W", "O"]);
+    const INTERACTIVE_INSTRUCTOR_SET = new Set(["MG", "1o1", "CQ", "Fup", "PQ", "AnQ", "MO", "DV", "W"]);
+    const STORAGE_KEY = "copus_recorder_state_v1";
+
+    let state = {
+      meta: { course: "CHEM-101 A", session: 1, observer: "Obs-1", intervalSec: 120, note: "" },
+      currentIndex: 1,
+      remainingSec: 120,
+      running: false,
+      selectedStudent: [],
+      selectedInstructor: [],
+      intervals: []
+    };
+
+    let timerId = null;
+
+    const els = {
+      courseInput: document.getElementById("courseInput"),
+      sessionInput: document.getElementById("sessionInput"),
+      observerInput: document.getElementById("observerInput"),
+      intervalSecInput: document.getElementById("intervalSecInput"),
+      sessionNoteInput: document.getElementById("sessionNoteInput"),
+      intervalLabel: document.getElementById("intervalLabel"),
+      clockDisplay: document.getElementById("clockDisplay"),
+      startPauseBtn: document.getElementById("startPauseBtn"),
+      saveNextBtn: document.getElementById("saveNextBtn"),
+      clearCurrentBtn: document.getElementById("clearCurrentBtn"),
+      studentCodeList: document.getElementById("studentCodeList"),
+      instructorCodeList: document.getElementById("instructorCodeList"),
+      studentSelectedCount: document.getElementById("studentSelectedCount"),
+      instructorSelectedCount: document.getElementById("instructorSelectedCount"),
+      totalIntervalsCount: document.getElementById("totalIntervalsCount"),
+      pctReceiving: document.getElementById("pctReceiving"),
+      pctActiveStudent: document.getElementById("pctActiveStudent"),
+      pctInteractiveInst: document.getElementById("pctInteractiveInst"),
+      exportMatrixCsvBtn: document.getElementById("exportMatrixCsvBtn"),
+      exportSummaryCsvBtn: document.getElementById("exportSummaryCsvBtn"),
+      undoLastBtn: document.getElementById("undoLastBtn"),
+      resetAllBtn: document.getElementById("resetAllBtn"),
+      statusMsg: document.getElementById("statusMsg"),
+      logTableBody: document.getElementById("logTableBody")
+    };
+
+    function saveLocal() {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (_) {}
+    }
+
+    function loadLocal() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        state = { ...state, ...parsed, running: false };
+      } catch (_) {}
+    }
+
+    function fmtClock(sec) {
+      const s = Math.max(0, Math.floor(sec));
+      return `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+    }
+
+    function windowRangeLabel(idx, lenSec) {
+      return `${fmtClock((idx - 1) * lenSec)}–${fmtClock(idx * lenSec)}`;
+    }
+
+    function clearCurrentSelection() {
+      state.selectedStudent = [];
+      state.selectedInstructor = [];
+      state.remainingSec = state.meta.intervalSec || 120;
+      renderCodes();
+      renderTimer();
+      saveLocal();
+    }
+
+    function saveIntervalAndAdvance() {
+      const lenSec = state.meta.intervalSec || 120;
+      state.intervals.push({
+        index: state.currentIndex,
+        range: windowRangeLabel(state.currentIndex, lenSec),
+        student: [...state.selectedStudent],
+        instructor: [...state.selectedInstructor],
+        note: state.meta.note || ""
+      });
+      state.currentIndex += 1;
+      state.selectedStudent = [];
+      state.selectedInstructor = [];
+      state.remainingSec = lenSec;
+      state.meta.note = "";
+      els.sessionNoteInput.value = "";
+      renderCodes();
+      renderTimer();
+      renderSummaryAndTable();
+      saveLocal();
+      els.statusMsg.textContent = `Saved Interval #${state.intervals.length}.`;
+    }
+
+    function tick() {
+      if (!state.running) return;
+      state.remainingSec -= 1;
+      if (state.remainingSec <= 0) {
+        saveIntervalAndAdvance();
+      } else {
+        renderTimer();
+        saveLocal();
+      }
+    }
+
+    function setRunning(next) {
+      state.running = next;
+      clearInterval(timerId);
+      if (state.running) { timerId = setInterval(tick, 1000); }
+      renderTimer();
+      saveLocal();
+    }
+
+    function renderTimer() {
+      const lenSec = state.meta.intervalSec || 120;
+      els.intervalLabel.textContent = `INTERVAL #${state.currentIndex} · ${windowRangeLabel(state.currentIndex, lenSec)}`;
+      els.clockDisplay.textContent = fmtClock(state.remainingSec);
+      els.startPauseBtn.textContent = state.running ? "Pause Timer" : "Start Timer";
+    }
+
+    function renderCodes() {
+      els.studentSelectedCount.textContent = `${state.selectedStudent.length} selected`;
+      els.instructorSelectedCount.textContent = `${state.selectedInstructor.length} selected`;
+
+      els.studentCodeList.innerHTML = "";
+      STUDENT_CODES.forEach(item => {
+        const active = state.selectedStudent.includes(item.code);
+        const priorCount = state.intervals.filter(iv => iv.student.includes(item.code)).length;
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = `code-btn${active ? " active-student" : ""}`;
+        btn.innerHTML = `<span><strong>${item.code}</strong> · ${item.label}</span><span class="pill-cnt">${priorCount + (active ? 1 : 0)}</span>`;
+        btn.addEventListener("click", () => {
+          state.selectedStudent = active
+            ? state.selectedStudent.filter(c => c !== item.code)
+            : [...state.selectedStudent, item.code];
+          renderCodes();
+          saveLocal();
+        });
+        els.studentCodeList.appendChild(btn);
+      });
+
+      els.instructorCodeList.innerHTML = "";
+      INSTRUCTOR_CODES.forEach(item => {
+        const active = state.selectedInstructor.includes(item.code);
+        const priorCount = state.intervals.filter(iv => iv.instructor.includes(item.code)).length;
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = `code-btn${active ? " active-instructor" : ""}`;
+        btn.innerHTML = `<span><strong>${item.code}</strong> · ${item.label}</span><span class="pill-cnt">${priorCount + (active ? 1 : 0)}</span>`;
+        btn.addEventListener("click", () => {
+          state.selectedInstructor = active
+            ? state.selectedInstructor.filter(c => c !== item.code)
+            : [...state.selectedInstructor, item.code];
+          renderCodes();
+          saveLocal();
+        });
+        els.instructorCodeList.appendChild(btn);
+      });
+    }
+
+    function computeMetrics() {
+      const n = state.intervals.length;
+      if (!n) return { n: 0, receivingPct: 0, activeStudentPct: 0, interactiveInstPct: 0 };
+
+      let recCnt = 0, actCnt = 0, intCnt = 0;
+      state.intervals.forEach(iv => {
+        if (iv.student.includes("L")) recCnt += 1;
+        if (iv.student.some(c => ACTIVE_STUDENT_SET.has(c))) actCnt += 1;
+        if (iv.instructor.some(c => INTERACTIVE_INSTRUCTOR_SET.has(c))) intCnt += 1;
+      });
+
+      return {
+        n,
+        receivingPct: Math.round((recCnt / n) * 100),
+        activeStudentPct: Math.round((actCnt / n) * 100),
+        interactiveInstPct: Math.round((intCnt / n) * 100)
+      };
+    }
+
+    function renderSummaryAndTable() {
+      const m = computeMetrics();
+      els.totalIntervalsCount.textContent = String(m.n);
+      els.pctReceiving.textContent = `${m.receivingPct}%`;
+      els.pctActiveStudent.textContent = `${m.activeStudentPct}%`;
+      els.pctInteractiveInst.textContent = `${m.interactiveInstPct}%`;
+
+      els.logTableBody.innerHTML = state.intervals.slice().reverse().map(iv => {
+        const sText = iv.student.length ? iv.student.join(", ") : "-";
+        const iText = iv.instructor.length ? iv.instructor.join(", ") : "-";
+        const cleanNote = (iv.note || "").replace(/</g, "&lt;");
+        return `<tr><td>${iv.index}</td><td>${iv.range}</td><td>${sText}</td><td>${iText}</td><td>${cleanNote}</td></tr>`;
+      }).join("");
+    }
+
+    function downloadCsv(filename, csvText) {
+      const blob = new Blob([csvText], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function csvEscape(val) {
+      return `"${String(val ?? "").replace(/"/g, '""')}"`;
+    }
+
+    [els.courseInput, els.sessionInput, els.observerInput, els.sessionNoteInput].forEach(el => {
+      el.addEventListener("input", () => {
+        state.meta.course = els.courseInput.value;
+        state.meta.session = Number(els.sessionInput.value) || 1;
+        state.meta.observer = els.observerInput.value;
+        state.meta.note = els.sessionNoteInput.value;
+        saveLocal();
+      });
+    });
+
+    els.intervalSecInput.addEventListener("change", () => {
+      const nextLen = Math.max(15, Math.min(600, Number(els.intervalSecInput.value) || 120));
+      state.meta.intervalSec = nextLen;
+      if (!state.running) state.remainingSec = nextLen;
+      renderTimer();
+      saveLocal();
+    });
+
+    els.startPauseBtn.addEventListener("click", () => setRunning(!state.running));
+    els.saveNextBtn.addEventListener("click", saveIntervalAndAdvance);
+    els.clearCurrentBtn.addEventListener("click", clearCurrentSelection);
+
+    els.exportMatrixCsvBtn.addEventListener("click", () => {
+      const headers = [
+        "course", "session", "observer", "interval_num", "time_window",
+        ...STUDENT_CODES.map(c => `S_${c.code}`),
+        ...INSTRUCTOR_CODES.map(c => `I_${c.code}`),
+        "note"
+      ];
+      const lines = [headers.map(csvEscape).join(",")];
+      state.intervals.forEach(iv => {
+        const row = [
+          state.meta.course, state.meta.session, state.meta.observer, iv.index, iv.range,
+          ...STUDENT_CODES.map(c => (iv.student.includes(c.code) ? 1 : 0)),
+          ...INSTRUCTOR_CODES.map(c => (iv.instructor.includes(c.code) ? 1 : 0)),
+          iv.note
+        ];
+        lines.push(row.map(csvEscape).join(","));
+      });
+      downloadCsv(`copus_matrix_${state.meta.course.replace(/\s+/g, "_")}_s${state.meta.session}.csv`, lines.join("\n"));
+      els.statusMsg.textContent = "Exported COPUS interval matrix (.csv).";
+    });
+
+    els.exportSummaryCsvBtn.addEventListener("click", () => {
+      const m = computeMetrics();
+      const headers = ["course", "session", "observer", "total_intervals", "pct_student_receiving_L", "pct_student_active_any", "pct_instructor_interactive_any"];
+      const row = [state.meta.course, state.meta.session, state.meta.observer, m.n, m.receivingPct, m.activeStudentPct, m.interactiveInstPct];
+      downloadCsv(`copus_summary_${state.meta.course.replace(/\s+/g, "_")}_s${state.meta.session}.csv`, [headers.map(csvEscape).join(","), row.map(csvEscape).join(",")].join("\n"));
+      els.statusMsg.textContent = "Exported COPUS summary roll-up (.csv).";
+    });
+
+    els.undoLastBtn.addEventListener("click", () => {
+      if (!state.intervals.length) return;
+      state.intervals.pop();
+      state.currentIndex = Math.max(1, state.currentIndex - 1);
+      state.remainingSec = state.meta.intervalSec || 120;
+      renderCodes();
+      renderTimer();
+      renderSummaryAndTable();
+      saveLocal();
+      els.statusMsg.textContent = "Removed last saved interval.";
+    });
+
+    els.resetAllBtn.addEventListener("click", () => {
+      setRunning(false);
+      state.intervals = [];
+      state.currentIndex = 1;
+      state.selectedStudent = [];
+      state.selectedInstructor = [];
+      state.remainingSec = state.meta.intervalSec || 120;
+      renderCodes();
+      renderTimer();
+      renderSummaryAndTable();
+      saveLocal();
+      els.statusMsg.textContent = "Reset COPUS session.";
+    });
+
+    loadLocal();
+    els.courseInput.value = state.meta.course;
+    els.sessionInput.value = state.meta.session;
+    els.observerInput.value = state.meta.observer;
+    els.intervalSecInput.value = state.meta.intervalSec || 120;
+    els.sessionNoteInput.value = state.meta.note || "";
+    renderTimer();
+    renderCodes();
+    renderSummaryAndTable();
+  </script>
+</body>
+</html>
